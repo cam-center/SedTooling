@@ -10,6 +10,7 @@ import os
 SED_MODE = "Sed"
 SEDML_MODE = "SedML"
 
+
 def setup(archive_location: str, convert: bool, mode: str):
     abs_archive_path: str = os.path.abspath(archive_location)
     with TemporaryDirectory() as temp_dir:
@@ -28,13 +29,14 @@ def setup(archive_location: str, convert: bool, mode: str):
         
         if mode == SED_MODE:
             sed_core = SedCore(sed_files=sed_files)
-            sed_core.validateFiles()
-            if (convert):
-                sed_core.convertToSedML()
+            sed_core.validateAllFiles()
+            if convert:
+                # sed_core.convertToSedML()
+                pass
             
         if mode == SEDML_MODE:
             # Validate SedML Files
-            if (convert):
+            if convert:
                 # Convert SedML to SEDML
                 pass
 

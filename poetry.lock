@@ -149,6 +149,63 @@ files = [
 typing-extensions = ">=4.6.0,<4.7.0 || >4.7.0"
 
 [[package]]
+name = "python-libsedml"
+version = "2.0.32"
+description = "LibSedML Python API"
+optional = false
+python-versions = "*"
+files = [
+    {file = "python_libsedml-2.0.32-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:7d3e0dd299eea0d2e6925a5e55354e0ff45890195925a7c0a1bcd65f2c93c722"},
+    {file = "python_libsedml-2.0.32-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:47e7e76e836c6e4b55b080e0fa6f9df2645abfcf79fe089f9b4339f703501304"},
+    {file = "python_libsedml-2.0.32-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:aead410b40c033c79df039317b8829bd2dc1c011c06fb94b0d990a87b0ba13e6"},
+    {file = "python_libsedml-2.0.32-cp310-cp310-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:a49509a3fea9ff473d5f39e9f25585a4226404752087fb4762cb614a1d22fd72"},
+    {file = "python_libsedml-2.0.32-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:fadef50960f16a985cdc4d5f746ef013bd22eea8a13609dbd157d9fc024feb21"},
+    {file = "python_libsedml-2.0.32-cp310-cp310-musllinux_1_1_i686.whl", hash = "sha256:da30be152dd47ee95679f06e7bea47a2c8ce659cca44546452fac899a448284a"},
+    {file = "python_libsedml-2.0.32-cp310-cp310-musllinux_1_1_x86_64.whl", hash = "sha256:c062ec3c2f8aa4dff104b49baa3ff3b6403f63af1251484711635035e09180f7"},
+    {file = "python_libsedml-2.0.32-cp310-cp310-win32.whl", hash = "sha256:18a7441d778c35a8967f7cc3feeea929b9a2b6a7a8a98243dd4a423f03bdd8c1"},
+    {file = "python_libsedml-2.0.32-cp310-cp310-win_amd64.whl", hash = "sha256:8711f8a3578985a3ff7b3748da094cf80f9e96add44430dc3a20aa794eb9d351"},
+    {file = "python_libsedml-2.0.32-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:5179810fcea5efd6ba5fa56a656e404e714adcfcf2bd1b02d70927d9b68eb63b"},
+    {file = "python_libsedml-2.0.32-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:41dd9d3bbc975d972052555469ed88d2bb367f3fba2f57d9c2cf52a5500226f4"},
+    {file = "python_libsedml-2.0.32-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:bfa097f669d472b5027f9be91c989d3669b635ab98f5a747cfef60c2037babc8"},
+    {file = "python_libsedml-2.0.32-cp311-cp311-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:033f1c5ecfd41d72b7e7303a50bd77c3696deb15d1950c6d169d3258a037e18f"},
+    {file = "python_libsedml-2.0.32-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:2dbbe13039c71495c4bd0ffb33e16441e2727160bcfd545bbdada15a459e7878"},
+    {file = "python_libsedml-2.0.32-cp311-cp311-musllinux_1_1_i686.whl", hash = "sha256:538cbb713dcce123c7cc71f8c42450f88a46d2895fa7fc4de5fe89924a265a0f"},
+    {file = "python_libsedml-2.0.32-cp311-cp311-musllinux_1_1_x86_64.whl", hash = "sha256:024902bb5882d5eb61ef5d934d21654d7bacdfc25ec3bd3a8da7b7fbb24ca6d9"},
+    {file = "python_libsedml-2.0.32-cp311-cp311-win32.whl", hash = "sha256:ad9fa9d805847671ece7afda5037ea3ebafaa8233a243ba58d65a0937831d0f6"},
+    {file = "python_libsedml-2.0.32-cp311-cp311-win_amd64.whl", hash = "sha256:b52bfcb40cc55a76786488c9d007c0b7da03387806ab5a0aad8ba6a8202438e0"},
+    {file = "python_libsedml-2.0.32-cp36-cp36m-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:3b2a7321de6906d9e26f58c708c1dddeeaed67e61a080f856aaa19847455040b"},
+    {file = "python_libsedml-2.0.32-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:a822c7df4141a4c5e7e9c3487f9d0b2ec39c62b7cc18e7ed2ccd7bc2b543e6ff"},
+    {file = "python_libsedml-2.0.32-cp37-cp37m-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:b7334678f5a236ed9b4ab6d5f71144d82a3e6aef283455486c82c820e32e7f9f"},
+    {file = "python_libsedml-2.0.32-cp37-cp37m-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:cbc575be1da905709364b1b67014c2f6dd65b22212a6290adf2d81a0fc645634"},
+    {file = "python_libsedml-2.0.32-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:ec295c9aecbeff9e48f003b8af96db5ef9659e1cb21dcd4e50fd576232b63fca"},
+    {file = "python_libsedml-2.0.32-cp37-cp37m-musllinux_1_1_i686.whl", hash = "sha256:ca158e97d0c0e5f121ef8a0b986b3fbb1c1178792df66fdb40f6df805cfcd0de"},
+    {file = "python_libsedml-2.0.32-cp37-cp37m-musllinux_1_1_x86_64.whl", hash = "sha256:a66a424a45fb7b6d52955d3744bd9d51cfed1e98287ee9f03008f6a6364471e0"},
+    {file = "python_libsedml-2.0.32-cp37-cp37m-win32.whl", hash = "sha256:8fd4482278c5374c61f032a63eb589a84e3034011d8d79876dff509c5d8bc7b0"},
+    {file = "python_libsedml-2.0.32-cp37-cp37m-win_amd64.whl", hash = "sha256:7158527333d0ca7eac8eceb9f2d2efe11bbdfa0c64647485a4337269ccd1c584"},
+    {file = "python_libsedml-2.0.32-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:74393bf54136465bff9222ba2da8dcf95d4fa98d5ec4b96b98f72952ad29ec44"},
+    {file = "python_libsedml-2.0.32-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:71225c3aff2628e1b6dd62b2099f02236ee88a26abbca83c6a8065fd48af9ca1"},
+    {file = "python_libsedml-2.0.32-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:84e09e665f35ad6f041f95d7bd4204da6f06c060ec999a7a732d77fa17465d81"},
+    {file = "python_libsedml-2.0.32-cp38-cp38-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:0c1bf68e963afa0e423d1bea9243f1418f63a84a9b80d56f5d13662fbce88569"},
+    {file = "python_libsedml-2.0.32-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:72fd791f18eaf1a304a58e346b262f0813e21c80b8c4bc7857636e46a5c78b93"},
+    {file = "python_libsedml-2.0.32-cp38-cp38-musllinux_1_1_i686.whl", hash = "sha256:7245d2af2ac84c4e30fb4e6287c3ffcca839ba9194395b0d32ee582509d244a6"},
+    {file = "python_libsedml-2.0.32-cp38-cp38-musllinux_1_1_x86_64.whl", hash = "sha256:492f8d473e4b50048731eeabb2234c2a41c85618c6e364ed445c7ed208dcf4ed"},
+    {file = "python_libsedml-2.0.32-cp38-cp38-win32.whl", hash = "sha256:a0fae647ea7be516ff12dfe44867c3454604b87aaa0e5cceae69db4781493ae3"},
+    {file = "python_libsedml-2.0.32-cp38-cp38-win_amd64.whl", hash = "sha256:11f643bc7a4684b3228c31dd77699171032da0fda0e40289e9d2ba91352737f8"},
+    {file = "python_libsedml-2.0.32-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:044b50391e971b8738c448221d87f20dd2c95bdd1fe2457484e122f8b3b0f68d"},
+    {file = "python_libsedml-2.0.32-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:d7f6497da423717c361abe56501300b52e8fccf35d8294ca420b26f59205db5b"},
+    {file = "python_libsedml-2.0.32-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:68bd271381eac3d8e8f122ee836e9d8c03f3c4abce229c805388bd0776ad5172"},
+    {file = "python_libsedml-2.0.32-cp39-cp39-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:663ad3b446ad09e927686193e75f6ec857a4592aa286f9baa5a671a75251903c"},
+    {file = "python_libsedml-2.0.32-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:64282379c971e4e82ab08bdfe10ba2dc22a180eb75b0b2fe96d85b8ded25d695"},
+    {file = "python_libsedml-2.0.32-cp39-cp39-musllinux_1_1_i686.whl", hash = "sha256:2a60366b22ebfa842925d01131f3b9cb8e7420635cc67fe966b176c51a23e002"},
+    {file = "python_libsedml-2.0.32-cp39-cp39-musllinux_1_1_x86_64.whl", hash = "sha256:2934d36fddbb263de7e93e103c6c3d2809135308046c74fdb9092d747f0f53a5"},
+    {file = "python_libsedml-2.0.32-cp39-cp39-win32.whl", hash = "sha256:7d4b98a82b4c5f7b6fdf7dd713721f2505dd22727c3c9da597aa91a30a765204"},
+    {file = "python_libsedml-2.0.32-cp39-cp39-win_amd64.whl", hash = "sha256:57fc39a7fd49346615ec10a1a88e3431867ab9eb1bb7a2e36ea91b189c089687"},
+    {file = "python_libsedml-2.0.32-pp37-pypy37_pp73-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:c7971ee79f953650d3f1af42e1f2470a10321df0ecda414c20c6fc68272855aa"},
+    {file = "python_libsedml-2.0.32-pp38-pypy38_pp73-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:ad095c380488632653e7b94bc28a481e91e6c3a44f8e19dcca9da9fda278fc0e"},
+    {file = "python_libsedml-2.0.32-pp39-pypy39_pp73-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:f0147c91e3bae57ba1bb0dc61692564743b8c83d4e36bcc72fcf865b581aedde"},
+]
+
+[[package]]
 name = "typing-extensions"
 version = "4.8.0"
 description = "Backported and Experimental Type Hints for Python 3.8+"
@@ -162,4 +219,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "8f139ecd925b28eb3001f9c907626775f768d4517f8265aece12019bfdf189b1"
+content-hash = "8ef14d9f7173d9ac910de149b85312aeb1931c70b18722c0ef583f5ca624b89f"

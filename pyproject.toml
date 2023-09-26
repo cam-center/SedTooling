@@ -2,14 +2,14 @@
 name = "sed-converter"
 version = "0.1.0"
 description = ""
-authors = ["Your Name <you@example.com>"]
+authors = ["Logan C.W. Drescher <drescher@uchc.edu>"]
 readme = "README.md"
 packages = [{include = "sed_converter"}]
 
 [tool.poetry.dependencies]
 python = "^3.9"
 pydantic = "^2.3.0"
-
+python-libsedml = "^2.0.32"
 
 [build-system]
 requires = ["poetry-core"]

@@ -6,11 +6,11 @@ import re
 
 class Input(BaseModel):
     name: str
-    id: str
+    identifier: str
     type: str
-    source: str
+    target: str
  
-    @field_validator("id")
+    @field_validator("identifier")
     @classmethod
     def legal_id(cls, v: str) -> str:
         assert re.match("[A-Za-z0-9_-]+", v) != None
@@ -23,10 +23,10 @@ class Input(BaseModel):
         parts: List[str] = re.split("::", v)
         assert len(parts) >= 2
         for element in parts:
-            assert re.match("[A-Za-z0-9_-]+", element) != None
+            assert re.match("[><A-Za-z0-9_-]+", element) != None
         return v
     
-    @field_validator("source")
+    @field_validator("target")
     @classmethod
     def validate_interval_with_reference(cls, v: str) -> str:
         if isinstance(v, float):

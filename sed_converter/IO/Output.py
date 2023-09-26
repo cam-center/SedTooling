@@ -6,11 +6,11 @@ import re
 
 class Output(BaseModel):
     name: str
-    id: str
+    identifier: str
     type: str
     interval: Union[float, str] 
 
-    @field_validator("id")
+    @field_validator("identifier")
     @classmethod
     def legal_id(cls, v: str) -> str:
         assert re.match("[A-Za-z0-9_-]+", v) != None
@@ -23,7 +23,7 @@ class Output(BaseModel):
         parts: List[str] = re.split("::", v)
         assert len(parts) >= 2
         for element in parts:
-            assert re.match("[A-Za-z0-9_-]+", element) != None
+            assert re.match("[><A-Za-z0-9_-]+", element) != None
         return v
     
     @field_validator("interval")
@@ -35,5 +35,5 @@ class Output(BaseModel):
             assert re.match("#[A-Za-z0-9_-]+", v) != None
         else:
             # trip any exception converting to float
-            int(v)
+            float(v)
             return v  # but we don't want to return an int

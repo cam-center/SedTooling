@@ -10,7 +10,7 @@ class Constant(BaseModel):
     type: str
     value: Any
 
-    @field_validator("id")
+    @field_validator("identifier")
     @classmethod
     def legal_id(cls, v: str) -> str:
         assert re.match("[A-Za-z0-9_-]+", v) != None
@@ -23,5 +23,5 @@ class Constant(BaseModel):
         parts: List[str] = re.split("::", v)
         assert len(parts) >= 2
         for element in parts:
-            assert re.match("[A-Za-z0-9_-]+", element) != None
+            assert re.match("[><A-Za-z0-9_-]+", element) != None
         return v

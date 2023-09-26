@@ -3,13 +3,13 @@ from typing import List
 import re
 
 
-class Dependency:
+class Dependency(BaseModel):
     name: str
-    id: str
+    identifier: str
     type: str
     source: str
 
-    @field_validator("id")
+    @field_validator("identifier")
     @classmethod
     def legal_id(cls, v: str) -> str:
         assert re.match("[A-Za-z0-9_-]+", v) != None
@@ -21,11 +21,11 @@ class Dependency:
         parts: List[str] = re.split("::", v)
         assert len(parts) >= 2
         for element in parts:
-            assert re.match("[A-Za-z0-9_-]+", element) != None
+            assert re.match("[><A-Za-z0-9_-]+", element) != None
         return v
     
     @field_validator("source")
     @classmethod
-    def legal_id(cls, v: str) -> str:
+    def legal_source(cls, v: str) -> str:
         assert re.match("[A-Za-z0-9_\\/-]+", v) != None
         return v
