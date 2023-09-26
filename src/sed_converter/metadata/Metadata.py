@@ -6,8 +6,8 @@ from sed_converter.ontologies.Ontology import Ontology
 
 class Metadata(BaseModel):
     name: str
-    level: Union[str, int]
-    version: Union[str, int]
+    level: int
+    version: int
     Ontologies: List[str]
 
 

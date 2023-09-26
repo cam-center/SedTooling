@@ -8,7 +8,7 @@ class Constant(BaseModel):
     name: str
     identifier: str
     type: str
-    value: Any
+    value: str
 
     @field_validator("identifier")
     @classmethod
