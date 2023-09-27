@@ -17,23 +17,23 @@ def setup(archive_location: str, convert: bool, mode: str):
         sed_files: List[str] = []
         sedml_files: List[str] = []
 
-        with ZipFile(abs_archive_path, 'r') as original_omex:
+        with ZipFile(abs_archive_path, "r") as original_omex:
             original_omex.extractall(temp_dir)
-        for root, _ , files in os.walk(temp_dir, topdown=False, followlinks=False):
+        for root, _, files in os.walk(temp_dir, topdown=False, followlinks=False):
             for file in files:
                 full_path: str = os.path.join(root, file)
                 if full_path.endswith(".sed"):
                     sed_files.append(full_path)
                 elif full_path.endswith(".sedml"):
                     sedml_files.append(full_path)
-        
+
         if mode == SED_MODE:
             sed_core = SedCore(sed_files=sed_files)
             sed_core.validateAllFiles()
             if convert:
                 # sed_core.convertToSedML()
                 pass
-            
+
         if mode == SEDML_MODE:
             # Validate SedML Files
             if convert:
@@ -41,16 +41,17 @@ def setup(archive_location: str, convert: bool, mode: str):
                 pass
 
 
-
 def main():
-    parser = ArgumentParser(description="Verify or Convert a COMBINE archive with either Sed or SED_ML documents")
-    parser.add_argument("starting_type",
-                        choices=["Sed", "sed", "SED-ML", "SedML", "sedml"])
-    parser.add_argument("archive_location", 
-                        help="The path to the archive to execute")
-    parser.add_argument("--verify", 
-                        action='store_true',
-                        help="do not convert the archive, just confirm if the archive contains verified Sed/SED-ML documents.")
+    parser = ArgumentParser(
+        description="Verify or Convert a COMBINE archive with either Sed or SED_ML documents"
+    )
+    parser.add_argument("starting_type", choices=["Sed", "sed", "SED-ML", "SedML", "sedml"])
+    parser.add_argument("archive_location", help="The path to the archive to execute")
+    parser.add_argument(
+        "--verify",
+        action="store_true",
+        help="do not convert the archive, just confirm if the archive contains verified Sed/SED-ML documents.",
+    )
     args: Namespace = parser.parse_args()
 
     mode: str
@@ -62,9 +63,5 @@ def main():
     setup(args.archive_location, not args.verify, mode)
 
 
-
 if __name__ == "__main__":
     main()
-
-
-

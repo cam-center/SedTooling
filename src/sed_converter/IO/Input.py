@@ -9,14 +9,13 @@ class Input(BaseModel):
     identifier: str
     type: str
     target: str
- 
+
     @field_validator("identifier")
     @classmethod
     def legal_id(cls, v: str) -> str:
         assert re.match("[A-Za-z0-9_-]+", v) != None
         return v
 
-    
     @field_validator("type")
     @classmethod
     def type_must_be_properly_formed(cls, v: str) -> str:
@@ -25,7 +24,7 @@ class Input(BaseModel):
         for element in parts:
             assert re.match("[><A-Za-z0-9_-]+", element) != None
         return v
-    
+
     @field_validator("target")
     @classmethod
     def validate_interval_with_reference(cls, v: str) -> str:

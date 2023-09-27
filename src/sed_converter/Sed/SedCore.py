@@ -6,7 +6,6 @@ import json
 
 
 class SedCore:
-
     def __init__(self, sed_files: List[str]) -> None:
         self.files: List[str] = sed_files
         self.parsed_files: Dict[str, SedDocument] = {}
@@ -22,7 +21,9 @@ class SedCore:
         ontologies: list[str] = sed_doc.Metadata.Ontologies
         # unsupported ontologies
         if {"pe", "cosim"}.intersection(set(ontologies)):
-            raise NotImplementedError("File contains ontologies that can not currently be converted to SedML")
+            raise NotImplementedError(
+                "File contains ontologies that can not currently be converted to SedML"
+            )
         print("converting Sed")
 
     def convertAllSedML(self):

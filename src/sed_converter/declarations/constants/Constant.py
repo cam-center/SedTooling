@@ -16,7 +16,6 @@ class Constant(BaseModel):
         assert re.match("[A-Za-z0-9_-]+", v) != None
         return v
 
-    
     @field_validator("type")
     @classmethod
     def type_must_be_properly_formed(cls, v: str) -> str:

@@ -13,6 +13,7 @@ class SedDocument(BaseModel):
     """
     This class serves as a stepping stone to access the metadata and parse for the correct version
     """
+
     Metadata: Metadata
     Dependencies: List[Dependency]
     Declarations: Declarations
@@ -43,8 +44,3 @@ def get_correct_doc(json_dict: dict) -> SedDocumentL1V1:
         print(f"Document could not be processed as level:{level} version:{version}")
         raise e
     return document
-
-
-
-
-

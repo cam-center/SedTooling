@@ -8,7 +8,7 @@ class Output(BaseModel):
     name: str
     identifier: str
     type: str
-    interval: Union[float, str] 
+    interval: Union[float, str]
 
     @field_validator("identifier")
     @classmethod
@@ -16,7 +16,6 @@ class Output(BaseModel):
         assert re.match("[A-Za-z0-9_-]+", v) != None
         return v
 
-    
     @field_validator("type")
     @classmethod
     def type_must_be_properly_formed(cls, v: str) -> str:
@@ -25,7 +24,7 @@ class Output(BaseModel):
         for element in parts:
             assert re.match("[><A-Za-z0-9_-]+", element) != None
         return v
-    
+
     @field_validator("interval")
     @classmethod
     def validate_interval_with_reference(cls, v: Union[float, str]) -> str:

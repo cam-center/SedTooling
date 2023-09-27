@@ -10,7 +10,6 @@ class Metadata(BaseModel):
     version: int
     Ontologies: List[str]
 
-
     @field_validator("level")
     @classmethod
     def check_level(cls, v: Union[str, int]) -> int:
@@ -32,8 +31,21 @@ class Metadata(BaseModel):
     @field_validator("Ontologies")
     @classmethod
     def verify_ontologies(cls, v: List[str]) -> List[str]:
-        valid_ontologies = ["sed", "pe", "output", "csv", "hdf5", "plot", "modeling", 
-                            "sbml", "simulation", "sim", "cosim", "BioSim", "KiSAO"]
+        valid_ontologies = [
+            "sed",
+            "pe",
+            "output",
+            "csv",
+            "hdf5",
+            "plot",
+            "modeling",
+            "sbml",
+            "simulation",
+            "sim",
+            "cosim",
+            "BioSim",
+            "KiSAO",
+        ]
         for ontology in v:
             assert ontology in valid_ontologies
         return v

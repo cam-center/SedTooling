@@ -21,7 +21,6 @@ from libsedml import SedDataSet as SedMLDataSet
 
 
 class SedMLDocument:
-
     def __init__(self, file_path: str):
         self.sedml: SedMLDoc = libsedml.readSedML(file_path)
         # Check for errors
@@ -38,8 +37,10 @@ class SedMLDocument:
         self.simulation_dict: dict[str, SedMLSimulation] = {}
         self.task_dict: dict[str, SedMLAbstractTask] = {}
         self.data_gen_dict: dict[str, SedMLDataGenerator] = {}
-        self.output_list: list[SedMLOutput] = \
-            [self.sedml.getOutput(output_index) for output_index in range(0, self.sedml.getNumOutputs())]
+        self.output_list: list[SedMLOutput] = [
+            self.sedml.getOutput(output_index)
+            for output_index in range(0, self.sedml.getNumOutputs())
+        ]
         self._processDocument()
 
     def _processDocument(self):
@@ -69,7 +70,9 @@ class SedMLDocument:
                     dataset: SedMLDataSet = report.getDataSet(i)
                     needed_data_gen_ids.add(dataset.getDataReference())
 
-        for data_gen in [self.sedml.getDataGenerator(i) for i in self.sedml.getNumDataGenerators()]:
+        for data_gen in [
+            self.sedml.getDataGenerator(i) for i in self.sedml.getNumDataGenerators()
+        ]:
             data_gen: SedMLDataGenerator = data_gen
             data_gen_id: str = data_gen.getId()
             if data_gen_id in needed_data_gen_ids:
@@ -82,4 +85,3 @@ class SedMLDocument:
 
     def exportToSed(self):
         pass
-

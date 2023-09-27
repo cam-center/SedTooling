@@ -14,7 +14,7 @@ class Dependency(BaseModel):
     def legal_id(cls, v: str) -> str:
         assert re.match("[A-Za-z0-9_-]+", v) != None
         return v
-    
+
     @field_validator("type")
     @classmethod
     def type_must_be_properly_formed(cls, v: str) -> str:
@@ -23,7 +23,7 @@ class Dependency(BaseModel):
         for element in parts:
             assert re.match("[><A-Za-z0-9_-]+", element) != None
         return v
-    
+
     @field_validator("source")
     @classmethod
     def legal_source(cls, v: str) -> str:
