@@ -79,16 +79,17 @@ class SedMLDocument:
                     needed_data_gen_ids.add(dataset.getDataReference())
 
         for data_gen in [self.sedml.getDataGenerator(i)
-                         for i in self.sedml.getNumDataGenerators()]:
-            data_gen: SedMLDataGenerator = data_gen
+                         for i in range(self.sedml.getNumDataGenerators())]:
             data_gen_id: str = data_gen.getId()
             if data_gen_id in needed_data_gen_ids:
                 self.data_gen_dict[data_gen_id] = data_gen
 
     def _process_data_gens(self) -> None:
         for data_gen in list(self.data_gen_dict.values()):
-            [self.variables_set.add(data_gen.getVariable(i)) for i in data_gen.getNumVariables()]
-            [self.parameter_set.add(data_gen.getParameter(i)) for i in data_gen.getNumParameters()]
+            for i in range(data_gen.getNumVariables()):
+                self.variables_set.add(data_gen.getVariable(i))
+            for i in range(data_gen.getNumParameters()):
+                self.parameter_set.add(data_gen.getParameter(i))
 
     def _process_variables_and_params(self) -> None:
         task: SedMLAbstractTask
