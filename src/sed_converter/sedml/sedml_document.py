@@ -1,4 +1,4 @@
-import libsedml
+import libsedml  # type: ignore
 from libsedml import SedAbstractTask as SedMLAbstractTask
 from libsedml import SedCurve as SedMLCurve
 from libsedml import SedDataGenerator as SedMLDataGenerator
@@ -19,6 +19,8 @@ from libsedml import SedSurface as SedMLSurface
 from libsedml import SedTask as SedMLTask
 from libsedml import SedVariable as SedMLVariable
 from libsedml import XMLNamespaces
+
+from sed_converter.sed.sed_document import SedDocument
 
 
 class SedMLDocument:

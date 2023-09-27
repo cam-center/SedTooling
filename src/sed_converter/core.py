@@ -4,7 +4,7 @@ from tempfile import TemporaryDirectory
 from typing import List
 from zipfile import ZipFile
 
-from Sed.SedCore import SedCore
+from sed_converter.sed.sed_core import SedCore
 
 SED_MODE = "Sed"
 SEDML_MODE = "SedML"

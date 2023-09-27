@@ -1,4 +1,4 @@
-import Simulation
+from sed_converter.ontologies.simulation.simulation import Simulation
 
 
 class OneStep(Simulation):
