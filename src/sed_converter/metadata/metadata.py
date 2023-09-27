@@ -7,7 +7,7 @@ class Metadata(BaseModel):
     name: str
     level: int
     version: int
-    Ontologies: List[str]
+    ontologies: List[str]
 
     @field_validator("level")
     @classmethod

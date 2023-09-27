@@ -15,28 +15,28 @@ class SedDocument(BaseModel):
     This class serves as a stepping stone to access the metadata and parse for the correct version
     """
 
-    Metadata: Metadata
-    Dependencies: List[Dependency]
-    Declarations: Declarations
-    Actions: List[Action]
-    Inputs: Optional[List[Input]] = None
-    Outputs: Optional[List[Output]] = None
+    metadata: Metadata
+    dependencies: List[Dependency]
+    declarations: Declarations
+    actions: List[Action]
+    inputs: Optional[List[Input]] = None
+    outputs: Optional[List[Output]] = None
 
 
 class SedDocumentL1V1(SedDocument, BaseModel):
-    Metadata: Metadata
-    Dependencies: List[Dependency]
-    Declarations: Declarations
-    Actions: List[Action]
-    Inputs: Optional[List[Input]] = None
-    Outputs: Optional[List[Output]] = None
+    metadata: Metadata
+    dependencies: List[Dependency]
+    declarations: Declarations
+    actions: List[Action]
+    inputs: Optional[List[Input]] = None
+    outputs: Optional[List[Output]] = None
 
 
 def get_correct_doc(json_dict: dict) -> SedDocumentL1V1:
     level_version_matrix = [[SedDocumentL1V1]]
     document: Union[SedDocumentL1V1, SedDocument] = SedDocument(**json_dict)
-    level: int = document.Metadata.level
-    version: int = document.Metadata.version
+    level: int = document.metadata.level
+    version: int = document.metadata.version
     correct_release = level_version_matrix[level - 1][version - 1]
     try:
         temp_doc = correct_release(**json_dict)

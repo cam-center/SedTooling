@@ -7,5 +7,5 @@ from sed_converter.declarations.variables.variable import Variable
 
 
 class Declarations(BaseModel):
-    Constants: List[Constant]
-    Variables: List[Variable]
+    constants: List[Constant]
+    variables: List[Variable]

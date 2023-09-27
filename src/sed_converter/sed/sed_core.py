@@ -19,7 +19,7 @@ class SedCore:
                 self.parsed_files[file] = get_correct_doc(json.loads(contents))
 
     def convert_to_sedml(self, sed_doc: SedDocument):
-        ontologies: list[str] = sed_doc.Metadata.Ontologies
+        ontologies: list[str] = sed_doc.metadata.ontologies
         # unsupported ontologies
         if {"pe", "cosim"}.intersection(set(ontologies)):
             raise NotImplementedError(
