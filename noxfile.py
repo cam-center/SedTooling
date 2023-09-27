@@ -2,7 +2,7 @@ import nox
 from nox_poetry import Session, session
 
 nox.options.sessions = ["test", "coverage", "lint"]
-
+locations = "src", "tests"
 
 @session(python=["3.8", "3.9", "3.10", "3.11"])
 def test(s: Session):
@@ -28,3 +28,11 @@ def fmt(s: Session) -> None:
 def lint(s: Session) -> None:
     s.run("black", "--check", ".")
     s.run("ruff", "check", ".")
+
+
+@nox.session(venv_backend="none")
+def mypy(session: Session) -> None:
+    """Type-check using mypy."""
+    args = session.posargs or locations
+    session.run("mypy", *args)
+
