@@ -1,1 +1,25 @@
+# python
 *.pyc
+**/__pycache__
+
+# poetry
+/.venv
+/dist
+
+# nox
+/.nox
+
+# pytest
+**/.pytest_cache
+
+# coverage
+/.coverage*
+/htmlcov
+/coverage.xml
+
+# ruff
+/.ruff_cache
+
+.idea/
+
+.vscode/

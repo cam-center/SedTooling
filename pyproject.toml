@@ -3,13 +3,85 @@ name = "sed-converter"
 version = "0.1.0"
 description = ""
 authors = ["Logan C.W. Drescher <drescher@uchc.edu>"]
+license = "MIT"
 readme = "README.md"
-packages = [{include = "sed_converter"}]
 
 [tool.poetry.dependencies]
 python = "^3.9"
 pydantic = "^2.3.0"
 python-libsedml = "^2.0.32"
+
+[tool.poetry.dev-dependencies]
+nox_poetry = "^1.0.3"
+
+# Test
+pytest = "^7.2"
+pytest-cov = "*"
+pytest-timeout = "*"
+
+# Lint
+black = ">=22.10"
+ruff = ">=0.0.291"
+
+
+[tool.pytest.ini_options]
+addopts = [
+    "--strict-config",
+    "--strict-markers",
+]
+xfail_strict = true
+filterwarnings = [
+    # When running tests, treat warnings as errors (e.g. -Werror).
+    "error",
+]
+
+
+[tool.coverage.run]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING",
+]
+
+[tool.coverage.paths]
+source = [
+    "src/",
+    ".nox/test*/lib/python*/site-packages/",
+    ".nox/test*/Lib/site-packages/",
+]
+
+
+[tool.black]
+line-length = 99
+
+
+[tool.ruff]
+src = ["src"]
+line-length = 99
+extend-select = [
+    "I", # isort
+    "N", # pep8-naming
+    "RUF", # ruff
+    "B", # flake8-bugbear
+    "N", # flake8-broken-line
+    "C4", # flake8-comprehensions
+    "PIE", # flake8-pie
+    "PT", # flake8-pytest-style
+    "PTH", # flake8-use-pathlib
+    "ERA", # flake8-eradicate
+]
+# F821: undefined-name; Parsita triggers this, but code coverage will catch it
+# N805: invalid-first-argument-name-for-method; Parsita tests and examples define functions in class bodies
+extend-ignore = ["F821", "N805"]
+
+[tool.ruff.per-file-ignores]
+# F401: unused-import; Allow unused imports in __init__.py files
+"__init__.py" = ["F401"]
+
+
 
 [build-system]
 requires = ["poetry-core"]

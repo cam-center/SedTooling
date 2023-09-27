@@ -16,21 +16,21 @@ class SedDocument(BaseModel):
     Metadata: Metadata
     Dependencies: List[Dependency]
     Declarations: Declarations
-    Inputs: Optional[List[Input]]
-    Outputs: Optional[List[Output]]
     Actions: List[Action]
+    Inputs: Optional[List[Input]] = None
+    Outputs: Optional[List[Output]] = None
 
 
 class SedDocumentL1V1(SedDocument, BaseModel):
     Metadata: Metadata
     Dependencies: List[Dependency]
     Declarations: Declarations
-    Inputs: Optional[List[Input]]
-    Outputs: Optional[List[Output]]
     Actions: List[Action]
+    Inputs: Optional[List[Input]] = None
+    Outputs: Optional[List[Output]] = None
 
 
-def get_correct_doc(json_dict: dict) -> Union[SedDocumentL1V1]:
+def get_correct_doc(json_dict: dict) -> SedDocumentL1V1:
     level_version_matrix = [[SedDocumentL1V1]]
     document: Union[SedDocumentL1V1, SedDocument] = SedDocument(**json_dict)
     level: int = document.Metadata.level
