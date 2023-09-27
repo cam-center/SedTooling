@@ -1,4 +1,6 @@
 import os
+from pathlib import Path
+
 from argparse import ArgumentParser, Namespace
 from tempfile import TemporaryDirectory
 from typing import List
@@ -10,8 +12,8 @@ SED_MODE = "Sed"
 SEDML_MODE = "SedML"
 
 
-def setup(archive_location: str, convert: bool, mode: str):
-    abs_archive_path: str = os.path.abspath(archive_location)
+def setup(archive_location: str, convert: bool, mode: str) -> None:
+    abs_archive_path: Path = Path(archive_location).resolve()
     with TemporaryDirectory() as temp_dir:
         sed_files: List[str] = []
         sedml_files: List[str] = []
@@ -40,7 +42,7 @@ def setup(archive_location: str, convert: bool, mode: str):
                 pass
 
 
-def main():
+def main() -> None:
     parser = ArgumentParser(
         description="Verify or Convert a COMBINE archive with either Sed or SED_ML documents"
     )

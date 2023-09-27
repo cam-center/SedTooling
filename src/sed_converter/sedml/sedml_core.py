@@ -1,10 +1,13 @@
+from typing import List
 from sed_converter.sed.sed_document import SedDocument
 from sed_converter.sedml.sedml_document import SedMLDocument
 
 
 class SedMLCore:
-    def __int__(self, sedml_files: list[str]):
-        self.files: dict[str, SedMLDocument] = {}
+    files: dict[str, SedMLDocument]
+
+    def __int__(self, sedml_files: List[str]) -> None:
+        self.files = dict()
         for file in sedml_files:
             self.files[file] = SedMLDocument(file)
 

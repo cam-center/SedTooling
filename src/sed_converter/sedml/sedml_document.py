@@ -50,14 +50,15 @@ class SedMLDocument:
         # Start basic parsing
         self._process_document()
 
-    def _process_document(self):
-        #  Each call grabs the needed values for the next "call" until we have parsed models and sims.
+    def _process_document(self) -> None:
+        #  Each call grabs the needed values for the next "call"
+        #  until we have parsed models and sims.
         self._process_outputs()
         self._process_data_gens()
         self._process_variables_and_params()
         self._process_tasks()
 
-    def _process_outputs(self):
+    def _process_outputs(self) -> None:
         needed_data_gen_ids: set[str] = set()
         for output in self.output_list:
             if isinstance(output, SedMLPlot):
@@ -84,21 +85,23 @@ class SedMLDocument:
             if data_gen_id in needed_data_gen_ids:
                 self.data_gen_dict[data_gen_id] = data_gen
 
-    def _process_data_gens(self):
+    def _process_data_gens(self) -> None:
         for data_gen in list(self.data_gen_dict.values()):
             [self.variables_set.add(data_gen.getVariable(i)) for i in data_gen.getNumVariables()]
             [self.parameter_set.add(data_gen.getParameter(i)) for i in data_gen.getNumParameters()]
 
-    def _process_variables_and_params(self):
+    def _process_variables_and_params(self) -> None:
         task: SedMLAbstractTask
         needed_task_ids: set[str] = set()
-        [needed_task_ids.add(variable.getTaskReference()) for variable in self.variables_set]
-        [needed_task_ids.add(parameter.getTaskReference()) for parameter in self.variables_set]
-        for task in [self.sedml.getTask(i) for i in range(0, self.sedml.getNumTasks())]:
+        for variable in self.variables_set:
+            needed_task_ids.add(variable.getTaskReference())
+        for parameter in self.parameter_set:
+            needed_task_ids.add(parameter.getTaskReference())
+        for task in [self.sedml.getTask(i) for i in range(self.sedml.getNumTasks())]:
             if task.getId() in needed_task_ids:
                 self.task_dict[task.getId()] = task
 
-    def _process_tasks(self):
+    def _process_tasks(self) -> None:
         needed_simulation_ids: set[str] = set()
         needed_model_ids: set[str] = set()
         for task in list(self.task_dict.values()):
@@ -131,9 +134,12 @@ class SedMLDocument:
                 sim_set.add(target_task.getSimulationReference())
         return model_set, sim_set
 
-    def export_to_sed(self):
+    def export_to_sed(self) -> SedDocument:
         # Start with Namespaces
         xmlns: XMLNamespaces = self.sedml.getNamespaces()
-        for namespace in [xmlns.getPrefix(i) for i in range(0, xmlns.getNumNamespaces())]:
+        for namespace in [xmlns.getPrefix(i) for i in range(xmlns.getNumNamespaces())]:
             print(namespace)
+        sed_document: SedDocument | None
+        # return sed_document
+        raise NotImplementedError("Not yet implemented")
 
