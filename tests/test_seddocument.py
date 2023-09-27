@@ -1,9 +1,6 @@
-import pytest
-import json
-import dataclasses
-from pydantic.tools import parse_obj_as
-
-from sed_converter.Sed.SedDocument import SedDocument, Metadata, Declarations
+from sed_converter.declarations.declarations import Declarations
+from sed_converter.metadata.metadata import Metadata
+from sed_converter.sed.sed_document import SedDocument
 
 
 def test_create():

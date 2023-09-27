@@ -1,11 +1,10 @@
+import os
 from argparse import ArgumentParser, Namespace
-from zipfile import ZipFile
 from tempfile import TemporaryDirectory
 from typing import List
+from zipfile import ZipFile
 
 from Sed.SedCore import SedCore
-
-import os
 
 SED_MODE = "Sed"
 SEDML_MODE = "SedML"
@@ -29,7 +28,7 @@ def setup(archive_location: str, convert: bool, mode: str):
 
         if mode == SED_MODE:
             sed_core = SedCore(sed_files=sed_files)
-            sed_core.validateAllFiles()
+            sed_core.validate_all_files()
             if convert:
                 # sed_core.convertToSedML()
                 pass
@@ -50,7 +49,8 @@ def main():
     parser.add_argument(
         "--verify",
         action="store_true",
-        help="do not convert the archive, just confirm if the archive contains verified Sed/SED-ML documents.",
+        help="do not convert the archive, "
+             "just confirm if the archive contains verified Sed/SED-ML documents.",
     )
     args: Namespace = parser.parse_args()
 

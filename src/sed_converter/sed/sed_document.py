@@ -1,12 +1,13 @@
-from pydantic import BaseModel
 from typing import List, Union, Optional
 
-from sed_converter.metadata.Metadata import Metadata
-from sed_converter.dependencies.Dependency import Dependency
-from sed_converter.declarations.Declarations import Declarations
-from sed_converter.IO.Input import Input
-from sed_converter.IO.Output import Output
-from sed_converter.actions.Action import Action
+from pydantic import BaseModel
+
+from sed_converter.actions.action import Action
+from sed_converter.declarations.declarations import Declarations
+from sed_converter.dependencies.dependency import Dependency
+from sed_converter.io.input import Input
+from sed_converter.io.output import Output
+from sed_converter.metadata.metadata import Metadata
 
 
 class SedDocument(BaseModel):

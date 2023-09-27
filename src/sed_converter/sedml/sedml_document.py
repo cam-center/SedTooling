@@ -1,23 +1,18 @@
 import libsedml
-
-from sed_converter.Sed.SedDocument import SedDocument
-from typing import Union
-
-from libsedml import SedError as SedMLError
-from libsedml import SedDocument as SedMLDoc
-
-from libsedml import SedModel as SedMLModel
-from libsedml import SedSimulation as SedMLSimulation
 from libsedml import SedAbstractTask as SedMLAbstractTask
+from libsedml import SedCurve as SedMLCurve
 from libsedml import SedDataGenerator as SedMLDataGenerator
+from libsedml import SedDataSet as SedMLDataSet
+from libsedml import SedDocument as SedMLDoc
+from libsedml import SedError as SedMLError
+from libsedml import SedModel as SedMLModel
 from libsedml import SedOutput as SedMLOutput
 from libsedml import SedPlot as SedMLPlot
 from libsedml import SedPlot2D as SedMLPlot2D
 from libsedml import SedPlot3D as SedMLPlot3D
 from libsedml import SedReport as SedMLReport
-from libsedml import SedCurve as SedMLCurve
+from libsedml import SedSimulation as SedMLSimulation
 from libsedml import SedSurface as SedMLSurface
-from libsedml import SedDataSet as SedMLDataSet
 
 
 class SedMLDocument:
@@ -27,7 +22,7 @@ class SedMLDocument:
         error_count: int = self.sedml.getNumErrors()
         if error_count > 0:
             exception_message: str = f"Found {error_count} errors reading SedML@{file_path}:\n\n"
-            for i in range(0, error_count):
+            for i in range(error_count):
                 error: SedMLError = self.sedml.getError(i)
                 exception_message += f"\t>({i})> {repr(error)}"
             raise RuntimeError(exception_message)
@@ -39,27 +34,27 @@ class SedMLDocument:
         self.data_gen_dict: dict[str, SedMLDataGenerator] = {}
         self.output_list: list[SedMLOutput] = [
             self.sedml.getOutput(output_index)
-            for output_index in range(0, self.sedml.getNumOutputs())
+            for output_index in range(self.sedml.getNumOutputs())
         ]
-        self._processDocument()
+        self._process_document()
 
-    def _processDocument(self):
-        self._processOutputs()
+    def _process_document(self):
+        self._process_outputs()
 
-    def _processOutputs(self):
+    def _process_outputs(self):
         needed_data_gen_ids: set[str] = set()
         for output in self.output_list:
             if isinstance(output, SedMLPlot):
                 plot: SedMLPlot = output
                 if isinstance(plot, SedMLPlot2D):
                     plot2: SedMLPlot2D = plot
-                    for i in range(0, plot2.getNumCurves()):
+                    for i in range(plot2.getNumCurves()):
                         curve: SedMLCurve = plot2.getCurve(i)
                         needed_data_gen_ids.add(curve.getXDataReference())
                         needed_data_gen_ids.add(curve.getYDataReference())
                 if isinstance(plot, SedMLPlot3D):
                     plot3: SedMLPlot3D = plot
-                    for i in range(0, plot3.getNumSurfaces()):
+                    for i in range(plot3.getNumSurfaces()):
                         surface: SedMLSurface = plot3.getSurface(i)
                         needed_data_gen_ids.add(surface.getXDataReference())
                         needed_data_gen_ids.add(surface.getYDataReference())
@@ -78,10 +73,10 @@ class SedMLDocument:
             if data_gen_id in needed_data_gen_ids:
                 self.data_gen_dict[data_gen_id] = data_gen
 
-    def _processDataGens(self):
+    def _process_data_gens(self):
         data_gens = list(self.data_gen_dict.values())
         for data_gen in data_gens:
             data_gen
 
-    def exportToSed(self):
+    def export_to_sed(self):
         pass
