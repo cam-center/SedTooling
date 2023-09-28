@@ -106,6 +106,7 @@ class SedMLCore:
         variables_to_return: list[dict] = []
         for task in tasks:
             if isinstance(task, SedMLTask):
+                pass
                 
         return variables_to_return
 
