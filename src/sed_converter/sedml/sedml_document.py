@@ -1,6 +1,4 @@
-import libsedml  # type: ignore
-from libsedml import SedAbstractTask as SedMLAbstractTask
-from libsedml import SedCurve as SedMLCurve
+import libsedml
 from libsedml import SedDataGenerator as SedMLDataGenerator
 from libsedml import SedDataSet as SedMLDataSet
 from libsedml import SedDocument as SedMLDoc
@@ -15,10 +13,11 @@ from libsedml import SedRepeatedTask as SedMLRepeatedTask
 from libsedml import SedReport as SedMLReport
 from libsedml import SedSimulation as SedMLSimulation
 from libsedml import SedSubTask as SedMLSubTask
-from libsedml import SedSurface as SedMLSurface
 from libsedml import SedTask as SedMLTask
+from libsedml import SedAbstractTask as SedMLAbstractTask
+from libsedml import SedSurface as SedMLSurface
+from libsedml import SedCurve as SedMLCurve
 from libsedml import SedVariable as SedMLVariable
-from libsedml import XMLNamespaces
 
 from sed_converter.sed.sed_document import SedDocument
 
@@ -36,8 +35,8 @@ class SedMLDocument:
             raise RuntimeError(exception_message)
 
         # Start pulling from SedML
-        self.variables_set: set[SedMLVariable] = set()
-        self.parameter_set: set[SedMLParameter] = set()
+        self.variable_dict: dict[str, SedMLVariable] = {}  # since vars can't hash, we're manually hashing by target
+        self.parameter_dict: dict[str, SedMLParameter] = {}  # since params can't hash, we're manually hashing by target
         self.model_dict: dict[str, SedMLModel] = {}
         self.simulation_dict: dict[str, SedMLSimulation] = {}
         self.task_dict: dict[str, SedMLAbstractTask] = {}
@@ -74,32 +73,38 @@ class SedMLDocument:
                         needed_data_gen_ids.add(surface.getYDataReference())
                         needed_data_gen_ids.add(surface.getZDataReference())
             if isinstance(output, SedMLReport):
-                for i in output.getNumDataSets():
+                for i in range(0, output.getNumDataSets()):
                     dataset: SedMLDataSet = output.getDataSet(i)
                     needed_data_gen_ids.add(dataset.getDataReference())
 
-        for data_gen in [
-            self.sedml.getDataGenerator(i) for i in range(self.sedml.getNumDataGenerators())
-        ]:
+        for data_gen in [self.sedml.getDataGenerator(i) for i in range(0, self.sedml.getNumDataGenerators())]:
+            data_gen: SedMLDataGenerator = data_gen
             data_gen_id: str = data_gen.getId()
             if data_gen_id in needed_data_gen_ids:
                 self.data_gen_dict[data_gen_id] = data_gen
 
     def _process_data_gens(self) -> None:
         for data_gen in list(self.data_gen_dict.values()):
-            for i in range(data_gen.getNumVariables()):
-                self.variables_set.add(data_gen.getVariable(i))
-            for i in range(data_gen.getNumParameters()):
-                self.parameter_set.add(data_gen.getParameter(i))
+            variable: SedMLVariable
+            for variable in [data_gen.getVariable(i) for i in range(0, data_gen.getNumVariables())]:
+                self.variable_dict[variable.getId()] = variable
+                """
+                if variable.getTarget() is not None:
+                    self.variable_dict[variable.getTarget()] = variable
+                elif variable.getSymbol() is not None:
+                    self.variable_dict[variable.getSymbol()] = variable
+                """
 
-    def _process_variables_and_params(self) -> None:
+            parameter: SedMLParameter
+            for parameter in [data_gen.getParameter(i) for i in range(0, data_gen.getNumParameters())]:
+                self.parameter_dict[parameter.getId()] = parameter
+
+    def _process_variables_and_params(self):
         task: SedMLAbstractTask
         needed_task_ids: set[str] = set()
-        for variable in self.variables_set:
-            needed_task_ids.add(variable.getTaskReference())
-        for parameter in self.parameter_set:
-            needed_task_ids.add(parameter.getTaskReference())
-        for task in [self.sedml.getTask(i) for i in range(self.sedml.getNumTasks())]:
+        [needed_task_ids.add(variable.getTaskReference()) for variable in self.variable_dict.values()]
+        [needed_task_ids.add(parameter.getTaskReference()) for parameter in self.variable_dict.values()]
+        for task in [self.sedml.getTask(i) for i in range(0, self.sedml.getNumTasks())]:
             if task.getId() in needed_task_ids:
                 self.task_dict[task.getId()] = task
 
@@ -114,9 +119,9 @@ class SedMLDocument:
                 needed_model_ids, needed_simulation_ids = self.__delve_into_repeated_task(task)
         model: SedMLModel
         sim: SedMLSimulation
-        for model in [self.sedml.getModel(i) for i in self.sedml.getNumModels()]:
+        for model in [self.sedml.getModel(i) for i in range(0, self.sedml.getNumModels())]:
             self.model_dict[model.getId()] = model
-        for sim in [self.sedml.getSimulation(i) for i in self.sedml.getNumSimulations()]:
+        for sim in [self.sedml.getSimulation(i) for i in range(0, self.sedml.getNumSimulations())]:
             self.simulation_dict[sim.getId()] = sim
 
     def __delve_into_repeated_task(
@@ -125,7 +130,7 @@ class SedMLDocument:
         model_set: set[SedMLModel] = set()
         sim_set: set[SedMLSimulation] = set()
         subtask: SedMLSubTask
-        for subtask in [repeated_task.getSubTask(i) for i in repeated_task.getNumSubTasks()]:
+        for subtask in [repeated_task.getSubTask(i) for i in range(0, repeated_task.getNumSubTasks())]:
             target_task = self.sedml.getTask(subtask.getTask())  # get task by id
             if isinstance(target_task, SedMLRepeatedTask):
                 ret_models, ret_sims = self.__delve_into_repeated_task(target_task)
@@ -136,9 +141,3 @@ class SedMLDocument:
                 sim_set.add(target_task.getSimulationReference())
         return model_set, sim_set
 
-    def export_to_sed(self) -> SedDocument:
-        # Start with Namespaces
-        xmlns: XMLNamespaces = self.sedml.getNamespaces()
-        for namespace in [xmlns.getPrefix(i) for i in range(xmlns.getNumNamespaces())]:
-            print(namespace)
-        raise NotImplementedError("Not yet implemented")

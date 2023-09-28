@@ -6,6 +6,7 @@ from typing import List
 from zipfile import ZipFile
 
 from sed_converter.sed.sed_core import SedCore
+from sed_converter.sedml.sedml_core import SedMLCore
 
 SED_MODE = "Sed"
 SEDML_MODE = "SedML"
@@ -35,10 +36,10 @@ def setup(archive_location: str, convert: bool, mode: str) -> None:
                 pass
 
         if mode == SEDML_MODE:
-            # Validate SedML Files
+            sedml_core = SedMLCore(sedml_files=sedml_files)
+            sedml_core.validate_all_files()
             if convert:
-                # Convert SedML to SEDML
-                pass
+                sedml_core.convert_all_to_sed()
 
 
 def main() -> None:

@@ -1,4 +1,6 @@
-from typing import List, Union
+import re
+
+from typing import Union, List
 
 from pydantic import BaseModel, field_validator
 
@@ -33,13 +35,11 @@ class Metadata(BaseModel):
         valid_ontologies = [
             "sed",
             "pe",
-            "output",
-            "csv",
-            "hdf5",
-            "plot",
-            "modeling",
+            "output<csv>",
+            "output<hdf5>",
+            "output<plot<2D>>",
+            "output<plot<3D>>",
             "sbml",
-            "simulation",
             "sim",
             "cosim",
             "BioSim",
