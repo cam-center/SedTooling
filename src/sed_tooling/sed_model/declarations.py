@@ -2,8 +2,8 @@ from typing import List
 
 from pydantic import BaseModel
 
-from sed_model.constant import Constant
-from sed_model.variable import Variable
+from sed_tooling.sed_model.constant import Constant
+from sed_tooling.sed_model.variable import Variable
 
 
 class Declarations(BaseModel):

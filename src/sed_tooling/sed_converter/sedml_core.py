@@ -2,11 +2,11 @@ import re
 from re import Match
 from typing import Union
 
-from sed_model.sed_document import SedDocument
+from sed_tooling.sed_model.sed_document import SedDocument
 from sed_converter.sedml_document import SedMLDocument
-from sed_model.load_action import Load
-from sed_model.dependency import Dependency
-from sed_model.metadata import Metadata
+from sed_tooling.sed_model.load_action import Load
+from sed_tooling.sed_model.dependency import Dependency
+from sed_tooling.sed_model.metadata import Metadata
 
 from libsedml import XMLNamespaces
 from libsedml import SedModel as SedMLModel

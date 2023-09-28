@@ -1,4 +1,4 @@
-from sed_model.simulation import Simulation
+from sed_tooling.sed_model.simulation import Simulation
 
 
 class OneStep(Simulation):
