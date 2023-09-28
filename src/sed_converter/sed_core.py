@@ -2,8 +2,8 @@ import json
 from pathlib import Path
 from typing import Dict, List
 
-from sed_converter.sed.sed_document import SedDocument, get_correct_doc
-from sed_converter.sedml.sedml_document import SedMLDocument
+from sed_model.sed_document import SedDocument, get_correct_doc
+from sed_converter.sedml_document import SedMLDocument
 
 from libsedml import XMLNamespaces
 
