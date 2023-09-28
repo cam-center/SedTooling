@@ -32,7 +32,7 @@ class SedDocumentL1V1(SedDocument, BaseModel):
     outputs: Optional[List[Output]] = None
 
 
-def get_correct_doc(json_dict: dict[str,Any]) -> SedDocumentL1V1:
+def get_correct_doc(json_dict: dict[str, Any]) -> SedDocumentL1V1:
     level_version_matrix = [[SedDocumentL1V1]]
     document: Union[SedDocumentL1V1, SedDocument] = SedDocument(**json_dict)
     level: int = document.metadata.level

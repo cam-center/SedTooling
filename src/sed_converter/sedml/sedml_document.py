@@ -78,8 +78,9 @@ class SedMLDocument:
                     dataset: SedMLDataSet = output.getDataSet(i)
                     needed_data_gen_ids.add(dataset.getDataReference())
 
-        for data_gen in [self.sedml.getDataGenerator(i)
-                         for i in range(self.sedml.getNumDataGenerators())]:
+        for data_gen in [
+            self.sedml.getDataGenerator(i) for i in range(self.sedml.getNumDataGenerators())
+        ]:
             data_gen_id: str = data_gen.getId()
             if data_gen_id in needed_data_gen_ids:
                 self.data_gen_dict[data_gen_id] = data_gen
@@ -118,9 +119,9 @@ class SedMLDocument:
         for sim in [self.sedml.getSimulation(i) for i in self.sedml.getNumSimulations()]:
             self.simulation_dict[sim.getId()] = sim
 
-    def __delve_into_repeated_task(self, repeated_task: SedMLRepeatedTask) \
-            -> tuple[set[SedMLModel], set[SedMLSimulation]]:
-
+    def __delve_into_repeated_task(
+        self, repeated_task: SedMLRepeatedTask
+    ) -> tuple[set[SedMLModel], set[SedMLSimulation]]:
         model_set: set[SedMLModel] = set()
         sim_set: set[SedMLSimulation] = set()
         subtask: SedMLSubTask
@@ -143,4 +144,3 @@ class SedMLDocument:
         sed_document: SedDocument | None
         # return sed_document
         raise NotImplementedError("Not yet implemented")
-

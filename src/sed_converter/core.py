@@ -52,7 +52,7 @@ def main() -> None:
         "--verify",
         action="store_true",
         help="do not convert the archive, "
-             "just confirm if the archive contains verified Sed/SED-ML documents.",
+        "just confirm if the archive contains verified Sed/SED-ML documents.",
     )
     args: Namespace = parser.parse_args()
 
