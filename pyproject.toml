@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "sed-converter"
+name = "sed-tooling"
 version = "0.1.0"
 description = ""
 authors = ["Logan C.W. Drescher <drescher@uchc.edu>"]

@@ -1,12 +1,12 @@
-from sed_model.action import Action
-from sed_model.constant import Constant
-from sed_model.declarations import Declarations
-from sed_model.variable import Variable
-from sed_model.dependency import Dependency
-from sed_model.input import Input
-from sed_model.output import Output
-from sed_model.metadata import Metadata
-from sed_model.sed_document import SedDocument
+from sed_tooling.sed_model.action import Action
+from sed_tooling.sed_model.constant import Constant
+from sed_tooling.sed_model.declarations import Declarations
+from sed_tooling.sed_model.variable import Variable
+from sed_tooling.sed_model.dependency import Dependency
+from sed_tooling.sed_model.input import Input
+from sed_tooling.sed_model.output import Output
+from sed_tooling.sed_model.metadata import Metadata
+from sed_tooling.sed_model.sed_document import SedDocument
 
 
 def test_create() -> None:

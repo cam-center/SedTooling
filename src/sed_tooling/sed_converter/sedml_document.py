@@ -1,4 +1,4 @@
-import libsedml
+import libsedml # type: ignore
 from libsedml import SedDataGenerator as SedMLDataGenerator
 from libsedml import SedDataSet as SedMLDataSet
 from libsedml import SedDocument as SedMLDoc
@@ -19,7 +19,7 @@ from libsedml import SedSurface as SedMLSurface
 from libsedml import SedCurve as SedMLCurve
 from libsedml import SedVariable as SedMLVariable
 
-from sed_model.sed_document import SedDocument
+from sed_tooling.sed_model.sed_document import SedDocument
 
 
 class SedMLDocument:
@@ -78,7 +78,7 @@ class SedMLDocument:
                     needed_data_gen_ids.add(dataset.getDataReference())
 
         for data_gen in [self.sedml.getDataGenerator(i) for i in range(0, self.sedml.getNumDataGenerators())]:
-            data_gen: SedMLDataGenerator = data_gen
+            assert(isinstance(data_gen, SedMLDataGenerator))
             data_gen_id: str = data_gen.getId()
             if data_gen_id in needed_data_gen_ids:
                 self.data_gen_dict[data_gen_id] = data_gen
@@ -99,11 +99,13 @@ class SedMLDocument:
             for parameter in [data_gen.getParameter(i) for i in range(0, data_gen.getNumParameters())]:
                 self.parameter_dict[parameter.getId()] = parameter
 
-    def _process_variables_and_params(self):
+    def _process_variables_and_params(self) -> None:
         task: SedMLAbstractTask
         needed_task_ids: set[str] = set()
-        [needed_task_ids.add(variable.getTaskReference()) for variable in self.variable_dict.values()]
-        [needed_task_ids.add(parameter.getTaskReference()) for parameter in self.variable_dict.values()]
+        for variable in self.variable_dict.values():
+            needed_task_ids.add(variable.getTaskReference())
+        for parameter in self.variable_dict.values():
+            needed_task_ids.add(parameter.getTaskReference())
         for task in [self.sedml.getTask(i) for i in range(0, self.sedml.getNumTasks())]:
             if task.getId() in needed_task_ids:
                 self.task_dict[task.getId()] = task

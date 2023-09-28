@@ -2,10 +2,8 @@ import json
 from pathlib import Path
 from typing import Dict, List
 
-from sed_model.sed_document import SedDocument, get_correct_doc
-from sed_converter.sedml_document import SedMLDocument
-
-from libsedml import XMLNamespaces
+from sed_tooling.sed_model.sed_document import SedDocument, get_correct_doc
+from sed_tooling.sed_converter.sedml_document import SedMLDocument
 
 
 class SedCore:
@@ -25,7 +23,7 @@ class SedCore:
                 print(f"File `{file}` could not be parsed as a file.")
 
     def convert_to_sedml(self, sed_doc: SedDocument, export_path: str = None) -> SedMLDocument:
-        ontologies: list[str] = sed_doc.Metadata.Ontologies
+        ontologies: list[str] = sed_doc.Metadata.ontologies
         # unsupported ontologies
         if {"pe", "cosim"}.intersection(set(ontologies)):
             raise NotImplementedError(

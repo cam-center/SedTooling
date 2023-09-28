@@ -2,12 +2,12 @@ from typing import Any, List, Optional, Union
 
 from pydantic import BaseModel
 
-from sed_model.action import Action
-from sed_model.declarations import Declarations
-from sed_model.dependency import Dependency
-from sed_model.input import Input
-from sed_model.output import Output
-from sed_model.metadata import Metadata
+from sed_tooling.sed_model.action import Action
+from sed_tooling.sed_model.declarations import Declarations
+from sed_tooling.sed_model.dependency import Dependency
+from sed_tooling.sed_model.input import Input
+from sed_tooling.sed_model.output import Output
+from sed_tooling.sed_model.metadata import Metadata
 
 
 class SedDocument(BaseModel):
