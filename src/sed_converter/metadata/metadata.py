@@ -9,7 +9,7 @@ class Metadata(BaseModel):
     name: str
     level: int
     version: int
-    Ontologies: List[str]
+    ontologies: List[str]
 
     @field_validator("level")
     @classmethod
@@ -29,7 +29,7 @@ class Metadata(BaseModel):
         assert v < 2
         return v
 
-    @field_validator("Ontologies")
+    @field_validator("ontologies")
     @classmethod
     def verify_ontologies(cls, v: List[str]) -> List[str]:
         valid_ontologies = [

@@ -32,6 +32,7 @@ class Output(BaseModel):
             return str(v)
         if v.startswith("#"):
             assert re.match("#[A-Za-z0-9_-]+", v) is not None
+            return v
         else:
             # trip any exception converting to float
             float(v)

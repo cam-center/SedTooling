@@ -28,10 +28,11 @@ class Input(BaseModel):
     @field_validator("target")
     @classmethod
     def validate_interval_with_reference(cls, v: str) -> str:
-        if isinstance(v, float):
-            return str(v)
+        if isinstance(v, float) or isinstance(v, int):
+            return str(float(v))
         if v.startswith("#"):
             assert re.match("#[A-Za-z0-9_-]+", v) is not None
+            return v
         else:
             # trip any exception converting to float
             int(v)

@@ -1,7 +1,6 @@
 import json
-
 from pathlib import Path
-from typing import List, Dict
+from typing import Dict, List
 
 from sed_converter.sed.sed_document import SedDocument, get_correct_doc
 from sed_converter.sedml.sedml_document import SedMLDocument
@@ -14,7 +13,7 @@ class SedCore:
         self.files: List[str] = sed_files
         self.parsed_files: Dict[str, SedDocument] = {}
 
-    def validate_all_files(self):
+    def validate_all_files(self) -> None:
         for file in self.files:
             print(f"parsing {file}:\n\n\n")
             path: Path = Path(file)

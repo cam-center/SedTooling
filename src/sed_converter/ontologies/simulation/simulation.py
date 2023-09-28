@@ -1,3 +1,5 @@
 class Simulation:
-    def __init__(self, algorithm) -> None:
+    algorithm: str
+
+    def __init__(self, algorithm: str):
         self.algorithm = algorithm

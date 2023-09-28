@@ -19,6 +19,8 @@ from libsedml import SedSurface as SedMLSurface
 from libsedml import SedCurve as SedMLCurve
 from libsedml import SedVariable as SedMLVariable
 
+from sed_converter.sed.sed_document import SedDocument
+
 
 class SedMLDocument:
     def __init__(self, file_path: str):
@@ -29,7 +31,7 @@ class SedMLDocument:
             exception_message: str = f"Found {error_count} errors reading SedML@{file_path}:\n\n"
             for i in range(error_count):
                 error: SedMLError = self.sedml.getError(i)
-                exception_message += f"\t>({i})> {repr(error)}"
+                exception_message += f"\t>({i})> {error!r}"
             raise RuntimeError(exception_message)
 
         # Start pulling from SedML
@@ -47,14 +49,15 @@ class SedMLDocument:
         # Start basic parsing
         self._process_document()
 
-    def _process_document(self):
-        #  Each call grabs the needed values for the next "call" until we have parsed models and sims.
+    def _process_document(self) -> None:
+        #  Each call grabs the needed values for the next "call"
+        #  until we have parsed models and sims.
         self._process_outputs()
         self._process_data_gens()
         self._process_variables_and_params()
         self._process_tasks()
 
-    def _process_outputs(self):
+    def _process_outputs(self) -> None:
         needed_data_gen_ids: set[str] = set()
         for output in self.output_list:
             if isinstance(output, SedMLPlot):
@@ -80,7 +83,7 @@ class SedMLDocument:
             if data_gen_id in needed_data_gen_ids:
                 self.data_gen_dict[data_gen_id] = data_gen
 
-    def _process_data_gens(self):
+    def _process_data_gens(self) -> None:
         for data_gen in list(self.data_gen_dict.values()):
             variable: SedMLVariable
             for variable in [data_gen.getVariable(i) for i in range(0, data_gen.getNumVariables())]:
@@ -105,7 +108,7 @@ class SedMLDocument:
             if task.getId() in needed_task_ids:
                 self.task_dict[task.getId()] = task
 
-    def _process_tasks(self):
+    def _process_tasks(self) -> None:
         needed_simulation_ids: set[str] = set()
         needed_model_ids: set[str] = set()
         for task in list(self.task_dict.values()):
@@ -121,9 +124,9 @@ class SedMLDocument:
         for sim in [self.sedml.getSimulation(i) for i in range(0, self.sedml.getNumSimulations())]:
             self.simulation_dict[sim.getId()] = sim
 
-    def __delve_into_repeated_task(self, repeated_task: SedMLRepeatedTask) \
-            -> tuple[set[SedMLModel], set[SedMLSimulation]]:
-
+    def __delve_into_repeated_task(
+        self, repeated_task: SedMLRepeatedTask
+    ) -> tuple[set[SedMLModel], set[SedMLSimulation]]:
         model_set: set[SedMLModel] = set()
         sim_set: set[SedMLSimulation] = set()
         subtask: SedMLSubTask

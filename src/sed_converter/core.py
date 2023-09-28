@@ -1,5 +1,6 @@
 import os
 from argparse import ArgumentParser, Namespace
+from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import List
 from zipfile import ZipFile
@@ -11,8 +12,8 @@ SED_MODE = "Sed"
 SEDML_MODE = "SedML"
 
 
-def setup(archive_location: str, convert: bool, mode: str):
-    abs_archive_path: str = os.path.abspath(archive_location)
+def setup(archive_location: str, convert: bool, mode: str) -> None:
+    abs_archive_path: Path = Path(archive_location).resolve()
     with TemporaryDirectory() as temp_dir:
         sed_files: List[str] = []
         sedml_files: List[str] = []
@@ -21,7 +22,7 @@ def setup(archive_location: str, convert: bool, mode: str):
             original_omex.extractall(temp_dir)
         for root, _, files in os.walk(temp_dir, topdown=False, followlinks=False):
             for file in files:
-                full_path: str = os.path.join(root, file)
+                full_path: str = str((Path(root) / file).resolve())
                 if full_path.endswith(".sed"):
                     sed_files.append(full_path)
                 elif full_path.endswith(".sedml"):
@@ -31,7 +32,7 @@ def setup(archive_location: str, convert: bool, mode: str):
             sed_core = SedCore(sed_files=sed_files)
             sed_core.validate_all_files()
             if convert:
-                # sed_core.convertToSedML()
+                # call convertToSedML() on sed_core
                 pass
 
         if mode == SEDML_MODE:
@@ -41,7 +42,7 @@ def setup(archive_location: str, convert: bool, mode: str):
                 sedml_core.convert_all_to_sed()
 
 
-def main():
+def main() -> None:
     parser = ArgumentParser(
         description="Verify or Convert a COMBINE archive with either Sed or SED_ML documents"
     )
@@ -51,7 +52,7 @@ def main():
         "--verify",
         action="store_true",
         help="do not convert the archive, "
-             "just confirm if the archive contains verified Sed/SED-ML documents.",
+        "just confirm if the archive contains verified Sed/SED-ML documents.",
     )
     args: Namespace = parser.parse_args()
 
