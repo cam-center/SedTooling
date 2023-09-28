@@ -3,7 +3,7 @@ from typing import List
 
 from pydantic import BaseModel, field_validator
 
-from sed_converter.actions.action import Action
+from sed_model.action import Action
 
 
 class Load(Action):

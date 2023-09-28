@@ -2,22 +2,17 @@ import re
 from re import Match
 from typing import Union
 
-from sed_converter.sed.sed_document import SedDocument
-from sed_converter.sedml.sedml_document import SedMLDocument
-from sed_converter.actions.action import Action
-from sed_converter.actions.load.load import Load
-from sed_converter.declarations.variables.variable import Variable
-from sed_converter.dependencies.dependency import Dependency
-from sed_converter.metadata.metadata import Metadata
-from sed_converter.declarations.declarations import Declarations
+from sed_model.sed_document import SedDocument
+from sed_converter.sedml_document import SedMLDocument
+from sed_model.load_action import Load
+from sed_model.dependency import Dependency
+from sed_model.metadata import Metadata
 
 from libsedml import XMLNamespaces
 from libsedml import SedModel as SedMLModel
 from libsedml import SedSimulation as SedMLSimulation
 from libsedml import SedAbstractTask as SedMLAbstractTask
-from libsedml import SedSubTask as SedMLSubTask
 from libsedml import SedTask as SedMLTask
-from libsedml import SedSurface as SedMLSurface
 
 
 class SedMLCore:

@@ -19,7 +19,7 @@ from libsedml import SedSurface as SedMLSurface
 from libsedml import SedCurve as SedMLCurve
 from libsedml import SedVariable as SedMLVariable
 
-from sed_converter.sed.sed_document import SedDocument
+from sed_model.sed_document import SedDocument
 
 
 class SedMLDocument:

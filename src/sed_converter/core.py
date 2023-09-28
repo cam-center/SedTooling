@@ -5,8 +5,8 @@ from tempfile import TemporaryDirectory
 from typing import List
 from zipfile import ZipFile
 
-from sed_converter.sed.sed_core import SedCore
-from sed_converter.sedml.sedml_core import SedMLCore
+from sed_converter.sed_core import SedCore
+from sed_converter.sedml_core import SedMLCore
 
 SED_MODE = "Sed"
 SEDML_MODE = "SedML"

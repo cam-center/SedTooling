@@ -1,4 +1,4 @@
-from sed_converter.ontologies.simulation.simulation import Simulation
+from sed_model.simulation import Simulation
 
 
 class SteadyState(Simulation):
