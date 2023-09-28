@@ -1,7 +1,6 @@
 import os
-from pathlib import Path
-
 from argparse import ArgumentParser, Namespace
+from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import List
 from zipfile import ZipFile
@@ -22,7 +21,7 @@ def setup(archive_location: str, convert: bool, mode: str) -> None:
             original_omex.extractall(temp_dir)
         for root, _, files in os.walk(temp_dir, topdown=False, followlinks=False):
             for file in files:
-                full_path: str = os.path.join(root, file)
+                full_path: str = str((Path(root) / file).resolve())
                 if full_path.endswith(".sed"):
                     sed_files.append(full_path)
                 elif full_path.endswith(".sedml"):
@@ -32,7 +31,7 @@ def setup(archive_location: str, convert: bool, mode: str) -> None:
             sed_core = SedCore(sed_files=sed_files)
             sed_core.validate_all_files()
             if convert:
-                # sed_core.convertToSedML()
+                # call convertToSedML() on sed_core
                 pass
 
         if mode == SEDML_MODE:

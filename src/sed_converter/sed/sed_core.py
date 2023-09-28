@@ -1,7 +1,6 @@
 import json
-
 from pathlib import Path
-from typing import List, Dict
+from typing import Dict, List
 
 from sed_converter.sed.sed_document import SedDocument, get_correct_doc
 

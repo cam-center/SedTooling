@@ -32,7 +32,7 @@ class SedMLDocument:
             exception_message: str = f"Found {error_count} errors reading SedML@{file_path}:\n\n"
             for i in range(error_count):
                 error: SedMLError = self.sedml.getError(i)
-                exception_message += f"\t>({i})> {repr(error)}"
+                exception_message += f"\t>({i})> {error!r}"
             raise RuntimeError(exception_message)
 
         # Start pulling from SedML
@@ -141,6 +141,4 @@ class SedMLDocument:
         xmlns: XMLNamespaces = self.sedml.getNamespaces()
         for namespace in [xmlns.getPrefix(i) for i in range(xmlns.getNumNamespaces())]:
             print(namespace)
-        # sed_document: SedDocument = SedDocument()
-        # return sed_document
         raise NotImplementedError("Not yet implemented")

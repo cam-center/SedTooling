@@ -5,7 +5,7 @@ nox.options.sessions = ["test", "coverage", "lint"]
 locations = "src", "tests"
 
 
-@session(python=["3.8", "3.9", "3.10", "3.11"])
+@session(python=["3.9", "3.10", "3.11"])
 def test(s: Session):
     s.install(".", "pytest", "pytest-cov", "pytest-timeout")
     s.env["COVERAGE_FILE"] = f".coverage.{s.python}"

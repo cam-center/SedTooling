@@ -1,4 +1,4 @@
-from typing import Union, List
+from typing import List, Union
 
 from pydantic import BaseModel, field_validator
 
@@ -27,7 +27,7 @@ class Metadata(BaseModel):
         assert v < 2
         return v
 
-    @field_validator("Ontologies")
+    @field_validator("ontologies")
     @classmethod
     def verify_ontologies(cls, v: List[str]) -> List[str]:
         valid_ontologies = [
