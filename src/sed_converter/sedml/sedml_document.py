@@ -141,6 +141,6 @@ class SedMLDocument:
         xmlns: XMLNamespaces = self.sedml.getNamespaces()
         for namespace in [xmlns.getPrefix(i) for i in range(xmlns.getNumNamespaces())]:
             print(namespace)
-        sed_document: SedDocument | None
+        # sed_document: SedDocument = SedDocument()
         # return sed_document
         raise NotImplementedError("Not yet implemented")
