@@ -11,6 +11,7 @@ python = "^3.9"
 pydantic = "^2.3.0"
 python-libsedml = "^2.0.32"
 mypy = "^1.5.1"
+kisao = "^2.33"
 
 [tool.poetry.dev-dependencies]
 nox_poetry = "^1.0.3"

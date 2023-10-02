@@ -9,7 +9,10 @@ from sed_tooling.sed_model.dependency import Dependency
 from sed_tooling.sed_model.metadata import Metadata
 from sed_tooling.sed_model.simulation import LoopedSimulation
 from sed_tooling.sed_model.constant import Constant
-from sed_tooling.sed_model.uniform_time_course import UniformTimeCourseSim, UniformTimeCourseSimSpatial
+from sed_tooling.sed_model.uniform_time_course import (
+    UniformTimeCourseSim,
+    UniformTimeCourseSimSpatial,
+)
 
 
 from libsedml import XMLNamespaces
@@ -28,10 +31,44 @@ from libsedml import SedFunctionalRange as SedMLFunctionalRange
 from libsedml import SedDataRange as SedMLDataRange
 from libsedml import SedUniformRange as SedMLUniformRange
 from libsedml import SedVectorRange as SedMLVectorRange
+from libsedml import SedAlgorithm as SedMLAlgorithm
 from libsedml import ASTNode
 
 
 class SedMLCore:
+    _spatial_algorithm_kisao_terms: set[str] = {
+        "KISAO:0000021",  # StochSim nearest-neighbour algorithm
+        "KISAO:0000057",  # Brownian diffusion Smoluchowski method
+        "KISAO:0000058",  # Greens function reaction dynamics (GFRD)
+        "KISAO:0000075",  # Gillespie multi-particle method
+        "KISAO:0000095",  # sub-volume stochastic reaction-diffusion algorithm
+        "KISAO:0000264",  # cellular automata update method
+        "KISAO:0000273",  # hard-particle molecular dynamics
+        "KISAO:0000274",  # first-passage Monte Carlo algorithm
+        "KISAO:0000278",  # Metropolis Monte Carlo algorithm
+        "KISAO:0000285",  # finite volume method
+        "KISAO:0000306",  # Lagrangian sliding fluid element algorithm
+        "KISAO:0000307",  # finite difference method
+        "KISAO:0000308",  # MacCormack method
+        "KISAO:0000309",  # Crank-Nicolson method
+        "KISAO:0000309",  # method of lines
+        "KISAO:0000316",  # enhanced Greens function reaction dynamics (enhanced GFRD)
+        "KISAO_0000337",  # finite element method
+        "KISAO_0000338",  # h-version of the finite element method
+        "KISAO_0000339",  # p-version of the finite element method
+        "KISAO_0000340",  # h-p version of the finite element method
+        "KISAO_0000341",  # mixed finite element method
+        "KISAO_0000342",  # level set method
+        "KISAO_0000343",  # generalized finite element method
+        "KISAO_0000345",  # h-p cloud method
+        "KISAO_0000348",  # extended finite element method
+        "KISAO_0000349",  # method of finite spheres
+        "KISAO:0000369",  # partial differential equation discretization method
+        "KISAO:0000582",  # Spatiocyte method
+        "KISAO:0000615",  # fully-implicit regular grid finite volume method with a variable time step
+        "KISAO_0000616",  # semi-implicit regular grid finite volume method with a fixed time step
+    }
+
     def __init__(self, sedml_files: list[str]):
         self.files: list[str] = sedml_files
         self.parsed_files: dict[str, SedMLDocument] = {}
@@ -86,8 +123,13 @@ class SedMLCore:
                     )
                 ontologies.append(f"sbml<{sbml_level},{sbml_version}>")
 
+            if namespace == "spatial":
+                ontologies.append("sim<spatial>")
+
         # Then Models
         cls._convert_models(proto_sed, list(sedml_doc.model_dict.values()))
+
+        # Then simulations / Tasks
         cls._convert_sims(
             proto_sed, list(sedml_doc.simulation_dict.values()), list(sedml_doc.task_dict.values())
         )
@@ -151,33 +193,33 @@ class SedMLCore:
             current_task = task
             while isinstance(current_task, SedMLRepeatedTask):
                 # Process ranges
-                range: SedMLRange
-                for range in [current_task.getRange(i) for i in current_task.getNumRanges()]:
-                    assert not isinstance(range, SedMLDataRange)
-                    assert not isinstance(range, SedMLFunctionalRange)
+                sed_range: SedMLRange
+                for sed_range in [current_task.getRange(i) for i in current_task.getNumRanges()]:
+                    assert not isinstance(sed_range, SedMLDataRange)
+                    assert not isinstance(sed_range, SedMLFunctionalRange)
 
-                    if isinstance(range, SedMLVectorRange):
-                        vector: list[str] = [str(float(elem)) for elem in range.getValues()]
-                        sed_range = f'[{", ".join(vector)}]'
+                    if isinstance(sed_range, SedMLVectorRange):
+                        vector: list[str] = [str(float(elem)) for elem in sed_range.getValues()]
+                        vector_range = f'[{", ".join(vector)}]'
                         proto_sed["Declarations"]["Constants"].append(
                             Constant(
-                                name=f"{range.getName()}",
-                                identifier=f"{range.getId()}",
+                                name=f"{sed_range.getName()}",
+                                identifier=f"{sed_range.getId()}",
                                 type=f"sed::vector",
-                                value=f"{sed_range}",
+                                value=f"{vector_range}",
                             )
                         )
-                    elif isinstance(range, SedMLUniformRange):
-                        start: float = float(range.getStart())
-                        end: float = float(range.getEnd())
-                        step_size: float = (end - start) / float(range.getNumberOfSteps())
-                        sed_range = f"({start}, {end}, {step_size})"
+                    elif isinstance(sed_range, SedMLUniformRange):
+                        start: float = float(sed_range.getStart())
+                        end: float = float(sed_range.getEnd())
+                        step_size: float = (end - start) / float(sed_range.getNumberOfSteps())
+                        uniform_range = f"({start}, {end}, {step_size})"
                         proto_sed["Declarations"]["Constants"].append(
                             Constant(
-                                name=f"{range.getName()}",
-                                identifier=f"{range.getId()}",
+                                name=f"{sed_range.getName()}",
+                                identifier=f"{sed_range.getId()}",
                                 type=f"sed::range",
-                                value=f"{sed_range}",
+                                value=f"{uniform_range}",
                             )
                         )
                     else:
@@ -216,11 +258,26 @@ class SedMLCore:
 
             for sim in sims:
                 if sim.getId() == current_task.getSimulationReference():
+                    alg: SedMLAlgorithm = sim.getAlgorithm()
+                    is_spatial: bool = (
+                        True if alg.getKisaoID() in cls._spatial_algorithm_kisao_terms else False
+                    )
                     if isinstance(sim, SedMLAnalysis):
                         raise NotImplementedError("SedML Analysis not yet supported")
                     if isinstance(sim, SedMLUniformTimeCourse):
+                        UTC = UniformTimeCourseSimSpatial if is_spatial else UniformTimeCourseSim
                         proto_sed["Actions"].append(
-
+                            UTC(
+                                name=f"",
+                                identifier=f"",
+                                type="sim::NonspatialSimulation<UTC>",
+                                algorithm=f"{alg.getKisaoID()}",
+                                algorithmParameters={},
+                                numDataPoints=0,
+                                endTime=0.0,
+                                startTime=0.0,
+                                outputStartTime=0.0,
+                            )
                         )
 
         return variables_to_return
