@@ -1,4 +1,4 @@
-import libsedml # type: ignore
+import libsedml  # type: ignore
 from libsedml import SedDataGenerator as SedMLDataGenerator
 from libsedml import SedDataSet as SedMLDataSet
 from libsedml import SedDocument as SedMLDoc
@@ -35,8 +35,12 @@ class SedMLDocument:
             raise RuntimeError(exception_message)
 
         # Start pulling from SedML
-        self.variable_dict: dict[str, SedMLVariable] = {}  # since vars can't hash, we're manually hashing by target
-        self.parameter_dict: dict[str, SedMLParameter] = {}  # since params can't hash, we're manually hashing by target
+        self.variable_dict: dict[
+            str, SedMLVariable
+        ] = {}  # since vars can't hash, we're manually hashing by target
+        self.parameter_dict: dict[
+            str, SedMLParameter
+        ] = {}  # since params can't hash, we're manually hashing by target
         self.model_dict: dict[str, SedMLModel] = {}
         self.simulation_dict: dict[str, SedMLSimulation] = {}
         self.task_dict: dict[str, SedMLAbstractTask] = {}
@@ -77,8 +81,10 @@ class SedMLDocument:
                     dataset: SedMLDataSet = output.getDataSet(i)
                     needed_data_gen_ids.add(dataset.getDataReference())
 
-        for data_gen in [self.sedml.getDataGenerator(i) for i in range(0, self.sedml.getNumDataGenerators())]:
-            assert(isinstance(data_gen, SedMLDataGenerator))
+        for data_gen in [
+            self.sedml.getDataGenerator(i) for i in range(0, self.sedml.getNumDataGenerators())
+        ]:
+            assert isinstance(data_gen, SedMLDataGenerator)
             data_gen_id: str = data_gen.getId()
             if data_gen_id in needed_data_gen_ids:
                 self.data_gen_dict[data_gen_id] = data_gen
@@ -86,7 +92,9 @@ class SedMLDocument:
     def _process_data_gens(self) -> None:
         for data_gen in list(self.data_gen_dict.values()):
             variable: SedMLVariable
-            for variable in [data_gen.getVariable(i) for i in range(0, data_gen.getNumVariables())]:
+            for variable in [
+                data_gen.getVariable(i) for i in range(0, data_gen.getNumVariables())
+            ]:
                 self.variable_dict[variable.getId()] = variable
                 """
                 if variable.getTarget() is not None:
@@ -96,7 +104,9 @@ class SedMLDocument:
                 """
 
             parameter: SedMLParameter
-            for parameter in [data_gen.getParameter(i) for i in range(0, data_gen.getNumParameters())]:
+            for parameter in [
+                data_gen.getParameter(i) for i in range(0, data_gen.getNumParameters())
+            ]:
                 self.parameter_dict[parameter.getId()] = parameter
 
     def _process_variables_and_params(self) -> None:
@@ -132,7 +142,10 @@ class SedMLDocument:
         model_set: set[SedMLModel] = set()
         sim_set: set[SedMLSimulation] = set()
         subtask: SedMLSubTask
-        for subtask in [repeated_task.getSubTask(i) for i in range(0, repeated_task.getNumSubTasks())]:
+        # we have to break down repeated tasks
+        for subtask in [
+            repeated_task.getSubTask(i) for i in range(0, repeated_task.getNumSubTasks())
+        ]:
             target_task = self.sedml.getTask(subtask.getTask())  # get task by id
             if isinstance(target_task, SedMLRepeatedTask):
                 ret_models, ret_sims = self.__delve_into_repeated_task(target_task)
@@ -142,4 +155,3 @@ class SedMLDocument:
                 model_set.add(target_task.getModelReference())
                 sim_set.add(target_task.getSimulationReference())
         return model_set, sim_set
-

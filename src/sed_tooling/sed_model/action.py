@@ -9,17 +9,17 @@ class Action(BaseModel):
     identifier: str
     type: str
 
-    @field_validator("identifier")
     @classmethod
+    @field_validator("identifier")
     def legal_id(cls, v: str) -> str:
-        assert re.match("[A-Za-z0-9_-]+", v) is not None
+        assert re.fullmatch("[A-Za-z0-9_-]+", v) is not None
         return v
 
-    @field_validator("type")
     @classmethod
+    @field_validator("type")
     def type_must_be_properly_formed(cls, v: str) -> str:
-        parts: List[str] = re.split("::", v)
-        assert len(parts) >= 2
-        for element in parts:
-            assert re.match("[><A-Za-z0-9_-]+", element) is not None
+        assert (
+            re.fullmatch("[><A-Za-z0-9_-]+(::[A-Za-z0-9_-]+)*(<( *(?R) *, *)*(?R)>)?", v)
+            is not None
+        )
         return v

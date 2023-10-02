@@ -1,6 +1,46 @@
-from sed_tooling.sed_model.simulation import Simulation
+import re
+
+from pydantic import field_validator
+
+from sed_tooling.sed_model.spatial_sim import SpatialSimulationSim, SpatialSimulationCosim
+from sed_tooling.sed_model.nonspatial_sim import NonspatialSimulationSim, NonspatialSimulationCosim
 
 
-class OneStep(Simulation):
-    def __init__(self, algorithm: str) -> None:
-        super(algorithm)
+class OneStepSimSpatial(SpatialSimulationSim):
+    type: str
+
+    @classmethod
+    @field_validator("type")
+    def type_must_be_properly_formed(cls, v: str) -> str:
+        assert re.fullmatch("^sim::SpatialSimulation<OneStep>$", v) is not None
+        return v
+
+
+class OneStepCosimSpatial(SpatialSimulationCosim):
+    type: str
+
+    @classmethod
+    @field_validator("type")
+    def type_must_be_properly_formed(cls, v: str) -> str:
+        assert re.fullmatch("^cosim::SpatialSimulation<OneStep>$", v) is not None
+        return v
+
+
+class OneStepSim(NonspatialSimulationSim):
+    type: str
+
+    @classmethod
+    @field_validator("type")
+    def type_must_be_properly_formed(cls, v: str) -> str:
+        assert re.fullmatch("^sim::NonspatialSimulation<OneStep>$", v) is not None
+        return v
+
+
+class OneStepCosim(NonspatialSimulationCosim):
+    type: str
+
+    @classmethod
+    @field_validator("type")
+    def type_must_be_properly_formed(cls, v: str) -> str:
+        assert re.fullmatch("^cosim::NonspatialSimulation<OneStep>$", v) is not None
+        return v
