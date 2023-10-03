@@ -32,6 +32,7 @@ from libsedml import SedDataRange as SedMLDataRange
 from libsedml import SedUniformRange as SedMLUniformRange
 from libsedml import SedVectorRange as SedMLVectorRange
 from libsedml import SedAlgorithm as SedMLAlgorithm
+from libsedml import SedAlgorithmParameter as SedMLAlgorithmParameter
 from libsedml import ASTNode
 
 
@@ -255,29 +256,52 @@ class SedMLCore:
                 )
 
             # Add normal task
-
             for sim in sims:
                 if sim.getId() == current_task.getSimulationReference():
                     alg: SedMLAlgorithm = sim.getAlgorithm()
+                    alg_params: list[SedMLAlgorithmParameter] = [
+                        alg.getAlgorithmParameter(i)
+                        for i in range(alg.getNumAlgorithmParameters())
+                    ]
                     is_spatial: bool = (
                         True if alg.getKisaoID() in cls._spatial_algorithm_kisao_terms else False
                     )
                     if isinstance(sim, SedMLAnalysis):
                         raise NotImplementedError("SedML Analysis not yet supported")
                     if isinstance(sim, SedMLUniformTimeCourse):
-                        UTC = UniformTimeCourseSimSpatial if is_spatial else UniformTimeCourseSim
-                        proto_sed["Actions"].append(
-                            UTC(
-                                name=f"",
-                                identifier=f"",
-                                type="sim::NonspatialSimulation<UTC>",
-                                algorithm=f"{alg.getKisaoID()}",
-                                algorithmParameters={},
-                                numDataPoints=0,
-                                endTime=0.0,
-                                startTime=0.0,
-                                outputStartTime=0.0,
+                        if is_spatial:
+                            proto_sed["Actions"].append(
+                                UniformTimeCourseSim(
+                                    name=f"{current_task.getName()}({sim.getName()})",
+                                    identifier=f"{current_task.getId()}",
+                                    type="sim::SpatialSimulation<UTC>",
+                                    algorithm=f"{alg.getKisaoID()}",
+                                    algorithmParameters={
+                                        param.getKisaoID(): param.getValue()
+                                        for param in alg_params
+                                    },
+                                    numDataPoints=int(sim.getNumberOfPoints()),
+                                    endTime=float(sim.getOutputEndTime()),
+                                    startTime=float(sim.getInitialTime()),
+                                    outputStartTime=float(sim.getOutputStartTime()),
+                                )
                             )
-                        )
+                        else:
+                            proto_sed["Actions"].append(
+                                UniformTimeCourseSimSpatial(
+                                    name=f"{current_task.getName()}({sim.getName()})",
+                                    identifier=f"{current_task.getId()}",
+                                    type="sim::NonspatialSimulation<UTC>",
+                                    algorithm=f"{alg.getKisaoID()}",
+                                    algorithmParameters={
+                                        param.getKisaoID(): param.getValue()
+                                        for param in alg_params
+                                    },
+                                    numDataPoints=int(sim.getNumberOfPoints()),
+                                    endTime=float(sim.getOutputEndTime()),
+                                    startTime=float(sim.getInitialTime()),
+                                    outputStartTime=float(sim.getOutputStartTime()),
+                                )
+                            )
 
         return variables_to_return
