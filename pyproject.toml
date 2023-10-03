@@ -8,7 +8,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.9"
-pydantic = "^2.3.0"
+pydantic = "^2.4.2"
 python-libsedml = "^2.0.32"
 mypy = "^1.5.1"
 kisao = "^2.33"

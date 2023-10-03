@@ -2,6 +2,8 @@ import re
 from re import Match
 from typing import Union
 
+import libsedml
+
 from sed_tooling.sed_model.sed_document import SedDocument
 from sed_tooling.sed_converter.sedml_document import SedMLDocument
 from sed_tooling.sed_model.load_action import Load
@@ -34,6 +36,7 @@ from libsedml import SedVectorRange as SedMLVectorRange
 from libsedml import SedAlgorithm as SedMLAlgorithm
 from libsedml import SedAlgorithmParameter as SedMLAlgorithmParameter
 from libsedml import ASTNode
+from libsedml import formulaToL3String
 
 
 class SedMLCore:
@@ -231,13 +234,17 @@ class SedMLCore:
                 for change in [
                     current_task.getTaskChange(i) for i in current_task.getNumTaskChanges()
                 ]:
-                    math: ASTNode
-                    for math in change.getMath():
-                        math.getListOfNodes()
+                    node: ASTNode = change.getMath()
+                    str_repr: str = str(libsedml.formulaToL3String(node))
+                    for var in [change.getVariable(i) for i in change.getNumVariables()]:
+                        pass
+                    """
+                    for node in change.getMath():
+                        node.getListOfNodes()
                         raise NotImplementedError("MathML parsing not implemented yet")
                     for var in [change.getVariable(i) for i in change.getNumVariables()]:
                         pass
-
+                    """
                 # Add a looped sim task
                 proto_sed["Actions"].append(
                     LoopedSimulation(
