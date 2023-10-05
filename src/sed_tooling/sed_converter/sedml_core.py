@@ -156,6 +156,39 @@ class SedMLCore:
         )
 
     @classmethod
+    def _convert_vars_params_math_and_ontologies(
+        cls, sedmlDoc: SedMLDocument, proto_sed: dict[str, Union[Metadata, list, dict[str, list]]]
+    ):
+        # Models
+        for model_id in sedmlDoc.model_dict:
+            if sedmlDoc.model_dict[model_id].getId() not in proto_sed["Declarations"]["Variables"]:
+                if not re.match("language.sbml", sedmlDoc.model_dict[model_id].getLanguage()):
+                    raise TypeError("Non-sbml models are unsupported at this time.")
+
+                proto_sed["Declarations"]["Variables"].append(
+                    Model(
+                        name=f"{sedmlDoc.model_dict[model_id].getName()}",
+                        identifier=f"{sedmlDoc.model_dict[model_id].getId()}",
+                        type=f"modeling::Model<sbml::SBMLFile>",
+                        bindings={"Time": "sed::TIME"},
+                    )
+                )
+        # Sims
+
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+
+    @classmethod
     def _convert_models(
         cls,
         proto_sed: dict[str, Union[Metadata, list, dict[str, list]]],
@@ -234,7 +267,9 @@ class SedMLCore:
             while isinstance(current_task, SedMLRepeatedTask):
                 # Process ranges
                 sed_range: SedMLRange
-                for sed_range in [current_task.getRange(i) for i in range(current_task.getNumRanges())]:
+                for sed_range in [
+                    current_task.getRange(i) for i in range(current_task.getNumRanges())
+                ]:
                     assert not isinstance(sed_range, SedMLDataRange)
                     assert not isinstance(sed_range, SedMLFunctionalRange)
 
@@ -296,7 +331,9 @@ class SedMLCore:
                                     source=f"{targeted_value}",
                                 )
 
-                    for const in [change.getParameter(i) for i in range(change.getNumParameters())]:
+                    for const in [
+                        change.getParameter(i) for i in range(change.getNumParameters())
+                    ]:
                         const: SedMLParameter
                         if const.getId() not in vars_and_consts:
                             vars_and_consts[const.getId()] = Constant(
@@ -445,38 +482,3 @@ class SedMLCore:
     ):
         for data_gen in data_gens:
             equation: str = data_gen.getMath()
-
-            for var in [data_gen.getVariable(i) for i in range(data_gen.getNumVariables())]:
-                targeted_value: str = var.getSymbol()
-                if targeted_value is None or targeted_value == "":
-                    # No symbol, so there's a target instead
-                    targeted_value = var.getTarget()
-                if var.getId() not in vars_and_consts:
-                    if re.fullmatch("/(\w:\w/)*\[@i\w='\w']", targeted_value):
-                        # It's a model reference
-                        equation.replace(
-                            f"{var.getId()}",
-                            f"$model.{var.getId()}",
-                        )
-                        vars_and_consts[base_model_id].bindings[
-                            str(var.getId())
-                        ] = targeted_value
-                    else:
-                        vars_and_consts[var.getId()] = BasicVariable(
-                            name=f"{var.getName()}",
-                            identifier=f"{var.getId()}",
-                            type=f"sed::basicVariable",
-                            source=f"{targeted_value}",
-                        )
-
-            for const in [change.getParameter(i) for i in range(change.getNumParameters())]:
-                const: SedMLParameter
-                if const.getId() not in vars_and_consts:
-                    vars_and_consts[const.getId()] = Constant(
-                        name=f"{const.getName()}",
-                        identifier=f"{const.getId()}",
-                        type=f"sed::basicVariable",
-                        value=f"{float(const.getValue())}",
-                pass
-
-
