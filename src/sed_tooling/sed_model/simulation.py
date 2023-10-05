@@ -76,7 +76,7 @@ class LoopedSimulation(Action):
     @classmethod
     @field_validator("sim")
     def legal_model(cls, v: str) -> str:
-        assert re.match("#[A-Za-z0-9_-]+", v) is not None
+        assert re.match("\[(#[A-Za-z0-9_-]+,$)+]", v) is not None
         return v
 
     @classmethod
