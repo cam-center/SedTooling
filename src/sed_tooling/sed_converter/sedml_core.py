@@ -47,11 +47,33 @@ from libsedml import SedAlgorithmParameter as SedMLAlgorithmParameter
 from libsedml import SedVariable as SedMLVariable
 from libsedml import SedParameter as SedMLParameter
 from libsedml import SedDataGenerator as SedMLDataGenerator
+from libsedml import SedOutput as SedMLOutput
+from libsedml import SedReport as SedMLReport
+from libsedml import SedDataSet as SedMLDataSet
+from libsedml import SedPlot as SedMLPlot
+from libsedml import SedPlot2D as SedMLPlot2D
+from libsedml import SedCurve as SedMLCurve
+from libsedml import SedPlot3D as SedMLPlot3D
+from libsedml import SedSurface as SedMLSurface
 from libsedml import ASTNode
 from libsedml import formulaToL3String
 
 
 class SedMLCore:
+    MajorSedMLType = Union[
+        SedMLOutput,
+        list[SedMLDataGenerator],
+        list[SedMLAbstractTask],
+        list[SedMLSimulation],
+        list[SedMLModel],
+    ]
+    ThreadExecutionType = list[
+        tuple[
+            str,
+            MajorSedMLType,
+        ]
+    ]
+
     _spatial_algorithm_kisao_terms: set[str] = {
         "KISAO:0000021",  # StochSim nearest-neighbour algorithm
         "KISAO:0000057",  # Brownian diffusion Smoluchowski method
@@ -157,23 +179,131 @@ class SedMLCore:
 
     @classmethod
     def _convert_vars_params_math_and_ontologies(
-        cls, sedmlDoc: SedMLDocument, proto_sed: dict[str, Union[Metadata, list, dict[str, list]]]
+        cls, sedml_doc: SedMLDocument, proto_sed: dict[str, Union[Metadata, list, dict[str, list]]]
     ):
         # Models
-        for model_id in sedmlDoc.model_dict:
-            if sedmlDoc.model_dict[model_id].getId() not in proto_sed["Declarations"]["Variables"]:
-                if not re.match("language.sbml", sedmlDoc.model_dict[model_id].getLanguage()):
+        for model_id in sedml_doc.model_dict:
+            if (
+                sedml_doc.model_dict[model_id].getId()
+                not in proto_sed["Declarations"]["Variables"]
+            ):
+                if not re.match("language.sbml", sedml_doc.model_dict[model_id].getLanguage()):
                     raise TypeError("Non-sbml models are unsupported at this time.")
 
                 proto_sed["Declarations"]["Variables"].append(
                     Model(
-                        name=f"{sedmlDoc.model_dict[model_id].getName()}",
-                        identifier=f"{sedmlDoc.model_dict[model_id].getId()}",
+                        name=f"{sedml_doc.model_dict[model_id].getName()}",
+                        identifier=f"{sedml_doc.model_dict[model_id].getId()}",
                         type=f"modeling::Model<sbml::SBMLFile>",
                         bindings={"Time": "sed::TIME"},
                     )
                 )
-        # Sims
+        # Tasks
+        for task_id in sedml_doc.task_dict:
+            task: SedMLAbstractTask = sedml_doc.task_dict[task_id]
+            if not isinstance(task, SedMLRepeatedTask):
+                continue
+
+            # Process Ranges
+            for sed_range in [task.getRange(i) for i in range(task.getNumRanges())]:
+                if isinstance(sed_range, SedMLVectorRange):
+                    parsed_type: str
+                    parsed_value: str
+                    vector: list[str] = [str(float(elem)) for elem in sed_range.getValues()]
+                    vector_range = f'[{", ".join(vector)}]'
+                    parsed_type = "sed::vector"
+                    parsed_value = vector_range
+
+                elif isinstance(sed_range, SedMLUniformRange):
+                    start: float = float(sed_range.getStart())
+                    end: float = float(sed_range.getEnd())
+                    step_size: float = (end - start) / float(sed_range.getNumberOfSteps())
+                    parsed_type = "sed::range"
+                    parsed_value = f"({start}, {end}, {step_size})"
+                else:
+                    continue  # no clue what kind of range it is
+
+                proto_sed["Declarations"]["Constants"].append(
+                    Constant(
+                        name=f"{sed_range.getName()}",
+                        identifier=f"{sed_range.getId()}",
+                        type=parsed_type,
+                        value=parsed_value,
+                    )
+                )
+
+            # Determine models and process changes
+            model_ids: set[str] = set(cls.__get_model_references(task))
+            for change in [task.getTaskChange(i) for i in range(task.getNumTaskChanges())]:
+                change: SedMLSetValue
+                for var in [change.getVariable(i) for i in range(change.getNumVariables())]:
+                    var: SedMLVariable
+                    relevant_model_ids: list[str]
+                    if var.getModelReference() is not None:
+                        relevant_model_ids = [var.getModelReference()]
+                    else:  # Then we assume any model listed should have the target, if not, it's a poorly written model
+                        relevant_model_ids = list(model_ids)
+                    for model in proto_sed["Declarations"]["Variables"]:
+                        model: Model
+                        if model.identifier in relevant_model_ids:
+                            target = (
+                                var.getTarget() if var.getTarget() is not None else var.getSymbol()
+                            )
+                            model.bindings[var.getId()] = target
+                for param in [change.getParameter(i) for i in range(change.getNumParameters())]:
+                    param: SedMLParameter
+                    proto_sed["Declarations"]["Constants"].append(
+                        Constant(
+                            name=f"{param.getName()}",
+                            identifier=f"{param.getId()}",
+                            type="sed::parameter",
+                            value=float(param.getValue()),
+                        )
+                    )
+        # Data Generators
+        for data_gen_id in sedml_doc.data_gen_dict:
+            data_gen: SedMLDataGenerator = sedml_doc.data_gen_dict[data_gen_id]
+            for var in [data_gen.getVariable(i) for i in range(data_gen.getNumVariables())]:
+                var: SedMLVariable
+                model_ref: str = var.getModelReference()
+                if model_ref is None:
+                    # We need to determine the single model source (if not single, then it's a bad sedml experiment)
+                    single_item_model_list = cls.__get_model_references(
+                        sedml_doc.task_dict[var.getTaskReference()]
+                    )
+                    if len(single_item_model_list) != 1:
+                        raise RuntimeError(
+                            "Bad SEDML detected; ambiguous output from multiple models detected."
+                        )
+                    model_ref = single_item_model_list[0]
+
+    @classmethod
+    def _create_experiment_threads(
+        cls, sedml_doc: SedMLDocument, proto_sed: dict[str, Union[Metadata, list, dict[str, list]]]
+    ) -> list[ThreadExecutionType]:
+        exp_threads: list[cls.ThreadExecutionType] = []
+        # go bottom up
+        for output in sedml_doc.output_list:
+            current_thread = [(output.getId(), output)]
+            if isinstance(output, SedMLReport):
+                for data_set in [output.getDataSet(i) for i in range(output.getNumDataSets())]:
+                    data_set: SedMLDataSet
+                    data_gen = sedml_doc.data_gen_dict[data_set.getDataReference()]
+                    # model_ref = data_gen.
+
+        return exp_threads
+
+    @classmethod
+    def __get_model_references(cls, task: SedMLAbstractTask) -> list[str]:
+        models: list[str] = []
+        if isinstance(task, SedMLRepeatedTask):
+            for subtask in [task.getSubTask(i) for i in range(task.getNumSubTasks())]:
+                models.extend(cls.__get_model_references(subtask))
+            return list(set(models))  # Get rid of duplicates
+        elif isinstance(task, SedMLTask):
+            return [task.getModelReference()]
+        else:
+            return []
 
     #
     #
