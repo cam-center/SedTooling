@@ -1,4 +1,4 @@
-import re
+import regex
 
 from typing import List, Dict, Union, Optional
 
@@ -18,24 +18,24 @@ class Simulation(Action):
     def type_must_be_properly_formed(cls, v: str) -> str:
         subpattern: str = "[><A-Za-z0-9_-]+(::[A-Za-z0-9_-]+)*(<( *(?R) *, *)*(?R)>)?"
         pattern: str = f"sim::{subpattern}"
-        assert re.fullmatch(pattern, v) is not None
+        assert regex.fullmatch(pattern, v) is not None
         return v
 
     @classmethod
     @field_validator("model")
     def legal_model(cls, v: str) -> str:
-        assert re.match("#[A-Za-z0-9_-]+", v) is not None
+        assert regex.fullmatch("#[A-Za-z0-9_-]+", v) is not None
         return v
 
     @classmethod
     @field_validator("algorithm")
     def legal_algorithm(cls, v: str) -> str:
-        parts: List[str] = re.split(":", v)
+        parts: List[str] = regex.split(":", v)
         assert len(parts) >= 2
         for element in parts:
             if len(element) == 0:
                 continue
-            assert re.match("[><A-Za-z0-9_-]+", element) is not None
+            assert regex.fullmatch("[><A-Za-z0-9_-]+", element) is not None
         return v
 
     @classmethod
@@ -68,7 +68,7 @@ class LoopedSimulation(Action):
     @field_validator("type")
     def type_must_be_properly_formed(cls, v: str) -> str:
         assert (
-            re.fullmatch("[><A-Za-z0-9_-]+(::[A-Za-z0-9_-]+)*(<( *(?R) *, *)*(?R)>)?", v)
+            regex.fullmatch("[><A-Za-z0-9_-]+(::[A-Za-z0-9_-]+)*(<( *(?R) *, *)*(?R)>)?", v)
             is not None
         )
         return v
@@ -76,7 +76,7 @@ class LoopedSimulation(Action):
     @classmethod
     @field_validator("sim")
     def legal_model(cls, v: str) -> str:
-        assert re.match("\[(#[A-Za-z0-9_-]+,$)+]", v) is not None
+        assert regex.fullmatch("\[(#[A-Za-z0-9_-]+,$)+]", v) is not None
         return v
 
     @classmethod
@@ -92,19 +92,19 @@ class LoopedSimulation(Action):
         keys = list(v.keys())
         assert len(keys) == len(set(keys))
         for value in list(v.values()):
-            if re.fullmatch("sed::range\(.+\)", value) is not None:
+            if regex.fullmatch("sed::range\(.+\)", value) is not None:
                 substr: str = value[11:-1]
                 parts: list[float] = [float(part.strip()) for part in substr.split(",")]
                 assert 0 < len(parts) < 4
             elif (
-                re.fullmatch("\[( *#?[A-Za-z0-9._-]+ *, *)*(#?[A-Za-z0-9._-]+)\]", value)
+                regex.fullmatch("\[( *#?[A-Za-z0-9._-]+ *, *)*(#?[A-Za-z0-9._-]+)\]", value)
                 is not None
             ):
                 parts: list[str] = [part.strip() for part in value[1:-1].split(",")]
                 for part in parts:
                     assert (
-                        re.fullmatch("([0-9]+[.])?[0-9]+", part) is not None
-                        or re.fullmatch("#[A-Za-z0-9_-]+", part) is not None
+                        regex.fullmatch("([0-9]+[.])?[0-9]+", part) is not None
+                        or regex.fullmatch("#[A-Za-z0-9_-]+", part) is not None
                     )
             else:
                 raise ValueError(f"Unknown value: `{value}` in value of Simulation's overrides.")

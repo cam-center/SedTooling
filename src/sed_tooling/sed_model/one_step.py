@@ -1,4 +1,4 @@
-import re
+import regex
 
 from pydantic import field_validator
 
@@ -12,7 +12,7 @@ class OneStepSimSpatial(SpatialSimulationSim):
     @classmethod
     @field_validator("type")
     def type_must_be_properly_formed(cls, v: str) -> str:
-        assert re.fullmatch("^sim::SpatialSimulation<OneStep>$", v) is not None
+        assert regex.fullmatch("^sim::SpatialSimulation<OneStep>$", v) is not None
         return v
 
 
@@ -22,7 +22,7 @@ class OneStepCosimSpatial(SpatialSimulationCosim):
     @classmethod
     @field_validator("type")
     def type_must_be_properly_formed(cls, v: str) -> str:
-        assert re.fullmatch("^cosim::SpatialSimulation<OneStep>$", v) is not None
+        assert regex.fullmatch("^cosim::SpatialSimulation<OneStep>$", v) is not None
         return v
 
 
@@ -32,7 +32,7 @@ class OneStepSim(NonspatialSimulationSim):
     @classmethod
     @field_validator("type")
     def type_must_be_properly_formed(cls, v: str) -> str:
-        assert re.fullmatch("^sim::NonspatialSimulation<OneStep>$", v) is not None
+        assert regex.fullmatch("^sim::NonspatialSimulation<OneStep>$", v) is not None
         return v
 
 
@@ -42,5 +42,5 @@ class OneStepCosim(NonspatialSimulationCosim):
     @classmethod
     @field_validator("type")
     def type_must_be_properly_formed(cls, v: str) -> str:
-        assert re.fullmatch("^cosim::NonspatialSimulation<OneStep>$", v) is not None
+        assert regex.fullmatch("^cosim::NonspatialSimulation<OneStep>$", v) is not None
         return v

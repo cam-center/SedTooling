@@ -1,17 +1,21 @@
-import re
+import regex
 from re import Match
 from typing import Union
 
 import libsedml
 
+from sed_tooling.sed_model.pattens import Patterns
 from sed_tooling.sed_model.sed_document import SedDocument
 from sed_tooling.sed_converter.sedml_document import SedMLDocument
 from sed_tooling.sed_model.load_action import Load
 from sed_tooling.sed_model.dependency import Dependency
 from sed_tooling.sed_model.metadata import Metadata
 from sed_tooling.sed_model.simulation import LoopedSimulation
+from sed_tooling.sed_model.action import PerformMath
+from sed_tooling.sed_model.plots import Plot2D, Plot3D, Curve, Surface
+from sed_tooling.sed_model.report import DataReport, HDF5Report
 from sed_tooling.sed_model.constant import Constant
-from sed_tooling.sed_model.variable import Variable, BasicVariable, Model, ModelElementReference
+from sed_tooling.sed_model.variable import Variable, BasicVariable, Model
 from sed_tooling.sed_model.uniform_time_course import (
     UniformTimeCourseSim,
     UniformTimeCourseSimSpatial,
@@ -187,7 +191,9 @@ class SedMLCore:
                 sedml_doc.model_dict[model_id].getId()
                 not in proto_sed["Declarations"]["Variables"]
             ):
-                if not re.match("language.sbml", sedml_doc.model_dict[model_id].getLanguage()):
+                if not regex.fullmatch(
+                    "language.sbml", sedml_doc.model_dict[model_id].getLanguage()
+                ):
                     raise TypeError("Non-sbml models are unsupported at this time.")
 
                 proto_sed["Declarations"]["Variables"].append(
@@ -265,7 +271,7 @@ class SedMLCore:
             data_gen: SedMLDataGenerator = sedml_doc.data_gen_dict[data_gen_id]
             for var in [data_gen.getVariable(i) for i in range(data_gen.getNumVariables())]:
                 var: SedMLVariable
-                model_ref: str = var.getModelReference()
+                model_ref: str = var.getModelReference()  # We add a "binding" to this model
                 if model_ref is None:
                     # We need to determine the single model source (if not single, then it's a bad sedml experiment)
                     single_item_model_list = cls.__get_model_references(
@@ -276,11 +282,21 @@ class SedMLCore:
                             "Bad SEDML detected; ambiguous output from multiple models detected."
                         )
                     model_ref = single_item_model_list[0]
+                    for model in proto_sed["Declarations"]["Variables"]:
+                        model: Model
+                        if model.identifier == model_ref:
+                            target = (
+                                var.getTarget() if var.getTarget() is not None else var.getSymbol()
+                            )
+                            model.bindings[var.getId()] = target
 
     @classmethod
     def _create_experiment_threads(
         cls, sedml_doc: SedMLDocument, proto_sed: dict[str, Union[Metadata, list, dict[str, list]]]
     ) -> list[ThreadExecutionType]:
+        """
+        We  separate each output into "linked lists" of actions for reduction and conversion ease
+        """
         exp_threads: list[cls.ThreadExecutionType] = []
         # go bottom up
         for output in sedml_doc.output_list:
@@ -294,6 +310,67 @@ class SedMLCore:
         return exp_threads
 
     @classmethod
+    def _convert_to_sed_document(
+        cls, sedml_doc: SedMLDocument, proto_sed: dict[str, Union[Metadata, list, dict[str, list]]]
+    ) -> SedDocument:
+        for output in sedml_doc.output_list:
+            tasks_list: list[str] = []
+            if isinstance(output, SedMLReport):
+                data_sets: list[str] = []
+                for data_set in [output.getDataSet(i) for i in range(output.getNumDataSets())]:
+                    data_set: SedMLDataSet
+                    data_gen: SedMLDataGenerator = sedml_doc.data_gen_dict[
+                        data_set.getDataReference()
+                    ]
+                    ds_task_list, ds_data_sets = cls.__parse_data_gen(data_gen, proto_sed)
+                    tasks_list.extend(ds_task_list)
+                    data_sets.extend(ds_data_sets)
+
+            if isinstance(output, SedMLPlot2D):
+                data_refs: list[str] = []
+                for curve in [output.getCurve(i) for i in range(output.getNumCurves())]:
+                    curve: SedMLCurve
+                    axes = [curve.getXDataReference(), curve.getYDataReference()]
+                    for axis in axes:
+                        data_gen = sedml_doc.data_gen_dict[axis]
+                        axis_task_ref, axis_data_ref = cls.__parse_data_gen(data_gen, proto_sed)
+                        tasks_list.append(axis_task_ref)
+                        data_refs.append(axis_data_ref)
+                    proto_sed["Actions"].append(
+                        Curve(
+                            name=f"{curve.getName()}",
+                            identifier=f"{curve.getId()}",
+                            type="sed::curve",
+                            x_axis=data_refs[0],
+                            y_axis=data_refs[1],
+                        )
+                    )
+            if isinstance(output, SedMLPlot3D):
+                data_refs: list[str] = []
+                for surface in [output.getSurface(i) for i in range(output.getNumSurfaces())]:
+                    surface: SedMLSurface
+                    axes = [
+                        surface.getXDataReference(),
+                        surface.getYDataReference(),
+                        surface.getZDataReference(),
+                    ]
+                    for axis in axes:
+                        data_gen = sedml_doc.data_gen_dict[axis]
+                        axis_task_ref, axis_data_ref = cls.__parse_data_gen(data_gen, proto_sed)
+                        tasks_list.append(axis_task_ref)
+                        data_refs.append(axis_data_ref)
+                    proto_sed["Actions"].append(
+                        Surface(
+                            name=f"{surface.getName()}",
+                            identifier=f"{surface.getId()}",
+                            type="sed::surface",
+                            x_axis=data_refs[0],
+                            y_axis=data_refs[1],
+                            z_axis=data_refs[2],
+                        )
+                    )
+
+    @classmethod
     def __get_model_references(cls, task: SedMLAbstractTask) -> list[str]:
         models: list[str] = []
         if isinstance(task, SedMLRepeatedTask):
@@ -304,6 +381,56 @@ class SedMLCore:
             return [task.getModelReference()]
         else:
             return []
+
+    @classmethod
+    def __parse_data_gen(
+        cls,
+        data_gen: SedMLDataGenerator,
+        proto_sed: dict[str, Union[Metadata, list, dict[str, list]]],
+    ) -> tuple[str, str]:
+        task_ref: str
+        data_set_ref: str
+        math_formula: str = libsedml.formulaToL3String(data_gen.getMath())
+        if data_gen.getNumVariables() + data_gen.getNumParameters() == 1 and regex.fullmatch(
+            Patterns.IDENTIFIER_PATTERN, math_formula
+        ):
+            # It's an "identity" generator.
+            var: SedMLVariable = data_gen.getVariable(0)
+            model_target: str = var.getModelReference()
+            task_ref = "#" + var.getTaskReference()
+            if model_target is None:
+                data_set_ref = f"#{var.getTaskReference()}.$model.{var.getId()}"
+            else:
+                data_set_ref = f"#{var.getTaskReference()}.{model_target}.{var.getId()}"
+        else:
+            # It's a formulaic data generator
+            task_ref = "Null"  # This is to satisfy the linter worrying that there isn't even a single variable
+            for var in [data_gen.getVariable(i) for i in data_gen.getNumVariables()]:
+                var: SedMLVariable
+                model_target: str = var.getModelReference()
+                task_ref = "#" + var.getTaskReference()
+                if model_target is None:
+                    math_formula.replace(
+                        var.getId(), f"#{var.getTaskReference()}.$model.{var.getId()}"
+                    )
+                else:
+                    math_formula.replace(
+                        var.getId(),
+                        f"#{var.getTaskReference()}.{model_target}.{var.getId()}",
+                    )
+            for param in [data_gen.getParameter(i) for i in data_gen.getNumParameters()]:
+                param: SedMLParameter
+                math_formula.replace(param.getId(), "#" + str(param.getId()))
+            proto_sed["Actions"].append(
+                PerformMath(
+                    name=f"{data_gen.getName()}",
+                    identifier=f"{data_gen.getId()}",
+                    type="sed::performMath",
+                    expression=math_formula,
+                )
+            )
+            data_set_ref = "#" + data_gen.getId()
+        return task_ref, data_set_ref
 
     #
     #
@@ -444,7 +571,7 @@ class SedMLCore:
                             # No symbol, so there's a target instead
                             targeted_value = var.getTarget()
                         if var.getId() not in vars_and_consts:
-                            if re.fullmatch("/(\w:\w/)*\[@i\w='\w']", targeted_value):
+                            if regex.fullmatch("/(\w:\w/)*\[@i\w='\w']", targeted_value):
                                 # It's a model reference
                                 str_repr.replace(
                                     f"{var.getId()}",

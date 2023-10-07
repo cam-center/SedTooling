@@ -1,4 +1,4 @@
-import re
+import regex
 from typing import Union
 
 from pydantic import BaseModel, field_validator
@@ -14,13 +14,13 @@ class Variable(BaseModel):
     @classmethod
     @field_validator("identifier")
     def legal_id(cls, v: str) -> str:
-        assert re.fullmatch(Patterns.IDENTIFIER_PATTERN, v) is not None
+        assert regex.fullmatch(Patterns.IDENTIFIER_PATTERN, v) is not None
         return v
 
     @classmethod
     @field_validator("type")
     def type_must_be_properly_formed(cls, v: str) -> str:
-        assert re.fullmatch(Patterns.TYPE_PATTERN, v) is not None
+        assert regex.fullmatch(Patterns.TYPE_PATTERN, v) is not None
         return v
 
 
@@ -35,43 +35,8 @@ class Model(Variable):
     @classmethod
     @field_validator("type")
     def type_must_be_properly_formed(cls, v: str) -> str:
-        assert (
-            re.fullmatch(
-                f"modeling::Model(<( *{Patterns.TYPE_PATTERN} *, *)*{Patterns.TYPE_PATTERN}>)?",
-                v,
-            )
-            is not None
-        )
-        return v
-
-
-class ModelElementReference(Variable):
-    type: str
-
-    @classmethod
-    @field_validator("type")
-    def type_must_be_properly_formed(cls, v: str) -> str:
-        assert (
-            re.fullmatch(
-                f"[><A-Za-z0-9_-]+::ModelElement(<( *{Patterns.TYPE_PATTERN} *, *)*{Patterns.TYPE_PATTERN}>)?",
-                v,
-            )
-            is not None
-        )
-        return v
-
-
-class SBMLModelElementReference(ModelElementReference):
-    type: str
-
-    @classmethod
-    @field_validator("type")
-    def type_must_be_properly_formed(cls, v: str) -> str:
-        assert (
-            re.fullmatch(
-                f"sbml::ModelElement(<( *{Patterns.TYPE_PATTERN} *, *)*{Patterns.TYPE_PATTERN}>)?",
-                v,
-            )
-            is not None
-        )
+        #  f"modeling::Model(<( *{Patterns.TYPE_PATTERN} *, *)*{Patterns.TYPE_PATTERN}>)?"
+        assert regex.fullmatch(f"modeling::Model(<{Patterns.TYPE_CHARS}>)?", v) is not None
+        if v.endswith(">"):
+            assert regex.fullmatch(f"{Patterns.TYPE_PATTERN}", v[16:-1])
         return v

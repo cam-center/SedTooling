@@ -1,4 +1,4 @@
-import re
+import regex
 
 from typing import Optional, Union
 
@@ -18,13 +18,13 @@ class UniformTimeCourseSim(NonspatialSimulationSim):
     @classmethod
     @field_validator("type")
     def type_must_be_properly_formed(cls, v: str) -> str:
-        assert re.fullmatch("^sim::NonspatialSimulation<UTC>$", v) is not None
+        assert regex.fullmatch("^sim::NonspatialSimulation<UTC>$", v) is not None
         return v
 
     @classmethod
     @field_validator("numDataPoints")
     def validate_points(cls, v: Union[str, int]) -> str:
-        if isinstance(v, str) and re.fullmatch("#[A-Za-z0-9_-]+", v) is None:
+        if isinstance(v, str) and regex.fullmatch("#[A-Za-z0-9_-]+", v) is None:
             v = int(v)  # we want to throw an exception if it's not actually an integer
         return str(v)  # but we want a string
 
@@ -33,7 +33,7 @@ class UniformTimeCourseSim(NonspatialSimulationSim):
     def validate_times(cls, v: Optional[Union[str, float]]) -> Optional[str]:
         if v is None:
             return v
-        if isinstance(v, str) and re.fullmatch("#[A-Za-z0-9_-]+", v) is None:
+        if isinstance(v, str) and regex.fullmatch("#[A-Za-z0-9_-]+", v) is None:
             v = float(v)  # we want to throw an exception if it's not actually a boolean
         return str(v)  # but we want a string
 
@@ -48,13 +48,13 @@ class UniformTimeCourseSimSpatial(SpatialSimulationSim):
     @classmethod
     @field_validator("type")
     def type_must_be_properly_formed(cls, v: str) -> str:
-        assert re.fullmatch("^sim::SpatialSimulation<UTC>$", v) is not None
+        assert regex.fullmatch("^sim::SpatialSimulation<UTC>$", v) is not None
         return v
 
     @classmethod
     @field_validator("numDataPoints")
     def validate_points(cls, v: Union[str, int]) -> str:
-        if isinstance(v, str) and re.fullmatch("#[A-Za-z0-9_-]+", v) is None:
+        if isinstance(v, str) and regex.fullmatch("#[A-Za-z0-9_-]+", v) is None:
             v = int(v)  # we want to throw an exception if it's not actually an integer
         return str(v)  # but we want a string
 
@@ -63,7 +63,7 @@ class UniformTimeCourseSimSpatial(SpatialSimulationSim):
     def validate_times(cls, v: Optional[Union[str, float]]) -> Optional[str]:
         if v is None:
             return v
-        if isinstance(v, str) and re.fullmatch("#[A-Za-z0-9_-]+", v) is None:
+        if isinstance(v, str) and regex.fullmatch("#[A-Za-z0-9_-]+", v) is None:
             v = float(v)  # we want to throw an exception if it's not actually a boolean
         return str(v)  # but we want a string
 
@@ -78,13 +78,13 @@ class UniformTimeCourseCosim(NonspatialSimulationCosim):
     @classmethod
     @field_validator("type")
     def type_must_be_properly_formed(cls, v: str) -> str:
-        assert re.fullmatch("^cosim::NonspatialSimulation<UTC>$", v) is not None
+        assert regex.fullmatch("^cosim::NonspatialSimulation<UTC>$", v) is not None
         return v
 
     @classmethod
     @field_validator("numDataPoints")
     def validate_points(cls, v: Union[str, int]) -> str:
-        if isinstance(v, str) and re.fullmatch("#[A-Za-z0-9_-]+", v) is None:
+        if isinstance(v, str) and regex.fullmatch("#[A-Za-z0-9_-]+", v) is None:
             v = int(v)  # we want to throw an exception if it's not actually an integer
         return str(v)  # but we want a string
 
@@ -93,7 +93,7 @@ class UniformTimeCourseCosim(NonspatialSimulationCosim):
     def validate_times(cls, v: Optional[Union[str, float]]) -> Optional[str]:
         if v is None:
             return v
-        if isinstance(v, str) and re.fullmatch("#[A-Za-z0-9_-]+", v) is None:
+        if isinstance(v, str) and regex.fullmatch("#[A-Za-z0-9_-]+", v) is None:
             v = float(v)  # we want to throw an exception if it's not actually a boolean
         return str(v)  # but we want a string
 
@@ -108,13 +108,13 @@ class UniformTimeCourseCosimSpatial(SpatialSimulationCosim):
     @classmethod
     @field_validator("type")
     def type_must_be_properly_formed(cls, v: str) -> str:
-        assert re.fullmatch("^cosim::SpatialSimulation<UTC>$", v) is not None
+        assert regex.fullmatch("^cosim::SpatialSimulation<UTC>$", v) is not None
         return v
 
     @classmethod
     @field_validator("numDataPoints")
     def validate_points(cls, v: Union[str, int]) -> str:
-        if isinstance(v, str) and re.fullmatch("#[A-Za-z0-9_-]+", v) is None:
+        if isinstance(v, str) and regex.fullmatch("#[A-Za-z0-9_-]+", v) is None:
             v = int(v)  # we want to throw an exception if it's not actually an integer
         return str(v)  # but we want a string
 
@@ -123,6 +123,6 @@ class UniformTimeCourseCosimSpatial(SpatialSimulationCosim):
     def validate_times(cls, v: Optional[Union[str, float]]) -> Optional[str]:
         if v is None:
             return v
-        if isinstance(v, str) and re.fullmatch("#[A-Za-z0-9_-]+", v) is None:
+        if isinstance(v, str) and regex.fullmatch("#[A-Za-z0-9_-]+", v) is None:
             v = float(v)  # we want to throw an exception if it's not actually a boolean
         return str(v)  # but we want a string

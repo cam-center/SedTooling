@@ -1,4 +1,4 @@
-import re
+import regex
 
 from pydantic import field_validator
 
@@ -14,7 +14,7 @@ class NonspatialSimulationSim(Simulation):
     def type_must_be_properly_formed(cls, v: str) -> str:
         subpattern: str = "[><A-Za-z0-9_-]+(::[A-Za-z0-9_-]+)*(<( *(?R) *, *)*(?R)>)?"
         pattern: str = f"sim::NonspatialSimulation<{subpattern}>"
-        assert re.fullmatch(pattern, v) is not None
+        assert regex.fullmatch(pattern, v) is not None
         return v
 
 
@@ -26,5 +26,5 @@ class NonspatialSimulationCosim(Cosimulation):
     def type_must_be_properly_formed(cls, v: str) -> str:
         subpattern: str = "[><A-Za-z0-9_-]+(::[A-Za-z0-9_-]+)*(<( *(?R) *, *)*(?R)>)?"
         pattern: str = f"cosim::NonspatialSimulation<{subpattern}>"
-        assert re.fullmatch(pattern, v) is not None
+        assert regex.fullmatch(pattern, v) is not None
         return v

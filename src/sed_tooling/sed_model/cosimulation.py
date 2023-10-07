@@ -1,4 +1,4 @@
-import re
+import regex
 
 from typing import List, Dict, Union, Optional
 
@@ -15,5 +15,5 @@ class Cosimulation(Simulation):
     def type_must_be_properly_formed(cls, v: str) -> str:
         subpattern: str = "[><A-Za-z0-9_-]+(::[A-Za-z0-9_-]+)*(<( *(?R) *, *)*(?R)>)?"
         pattern: str = f"cosim::{subpattern}"
-        assert re.fullmatch(pattern, v) is not None
+        assert regex.fullmatch(pattern, v) is not None
         return v
