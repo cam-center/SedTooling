@@ -552,7 +552,6 @@ class SedMLCore:
                                 type=f"sed::range",
                                 value=f"{uniform_range}",
                             )
-
                     else:
                         raise ValueError("Unknown range type encountered")
 
