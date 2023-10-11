@@ -313,6 +313,7 @@ class SedMLCore:
     def _convert_to_sed_document(
         cls, sedml_doc: SedMLDocument, proto_sed: dict[str, Union[Metadata, list, dict[str, list]]]
     ) -> SedDocument:
+        data_report_ids = []
         for output in sedml_doc.output_list:
             tasks_list: list[str] = []
             if isinstance(output, SedMLReport):
@@ -325,49 +326,62 @@ class SedMLCore:
                     ds_task_list, ds_data_sets = cls.__parse_data_gen(data_gen, proto_sed)
                     tasks_list.extend(ds_task_list)
                     data_sets.extend(ds_data_sets)
+                proto_sed["Actions"].append(
+                    DataReport(name=f"", identifier=f"", type=f"", metaData={}, dataSets=data_sets)
+                )
+                data_report_ids.append(output.getId())
 
-            if isinstance(output, SedMLPlot2D):
-                data_refs: list[str] = []
-                for curve in [output.getCurve(i) for i in range(output.getNumCurves())]:
-                    curve: SedMLCurve
-                    axes = [curve.getXDataReference(), curve.getYDataReference()]
-                    for axis in axes:
-                        data_gen = sedml_doc.data_gen_dict[axis]
-                        axis_task_ref, axis_data_ref = cls.__parse_data_gen(data_gen, proto_sed)
-                        tasks_list.append(axis_task_ref)
-                        data_refs.append(axis_data_ref)
-                    proto_sed["Actions"].append(
-                        Curve(
-                            name=f"{curve.getName()}",
-                            identifier=f"{curve.getId()}",
-                            type="sed::curve",
-                            x_axis=data_refs[0],
-                            y_axis=data_refs[1],
+            if isinstance(output, SedMLPlot):
+                if isinstance(output, SedMLPlot2D):
+                    data_refs: list[str] = []
+                    for curve in [output.getCurve(i) for i in range(output.getNumCurves())]:
+                        curve: SedMLCurve
+                        axes = [curve.getXDataReference(), curve.getYDataReference()]
+                        for axis in axes:
+                            data_gen = sedml_doc.data_gen_dict[axis]
+                            axis_task_ref, axis_data_ref = cls.__parse_data_gen(
+                                data_gen, proto_sed
+                            )
+                            tasks_list.append(axis_task_ref)
+                            data_refs.append(axis_data_ref)
+                        proto_sed["Actions"].append(
+                            Curve(
+                                name=f"{curve.getName()}",
+                                identifier=f"{curve.getId()}",
+                                type="sed::curve",
+                                x_axis=data_refs[0],
+                                y_axis=data_refs[1],
+                            )
                         )
-                    )
-            if isinstance(output, SedMLPlot3D):
-                data_refs: list[str] = []
-                for surface in [output.getSurface(i) for i in range(output.getNumSurfaces())]:
-                    surface: SedMLSurface
-                    axes = [
-                        surface.getXDataReference(),
-                        surface.getYDataReference(),
-                        surface.getZDataReference(),
-                    ]
-                    for axis in axes:
-                        data_gen = sedml_doc.data_gen_dict[axis]
-                        axis_task_ref, axis_data_ref = cls.__parse_data_gen(data_gen, proto_sed)
-                        tasks_list.append(axis_task_ref)
-                        data_refs.append(axis_data_ref)
-                    proto_sed["Actions"].append(
-                        Surface(
-                            name=f"{surface.getName()}",
-                            identifier=f"{surface.getId()}",
-                            type="sed::surface",
-                            x_axis=data_refs[0],
-                            y_axis=data_refs[1],
-                            z_axis=data_refs[2],
+                if isinstance(output, SedMLPlot3D):
+                    data_refs: list[str] = []
+                    for surface in [output.getSurface(i) for i in range(output.getNumSurfaces())]:
+                        surface: SedMLSurface
+                        axes = [
+                            surface.getXDataReference(),
+                            surface.getYDataReference(),
+                            surface.getZDataReference(),
+                        ]
+                        for axis in axes:
+                            data_gen = sedml_doc.data_gen_dict[axis]
+                            axis_task_ref, axis_data_ref = cls.__parse_data_gen(
+                                data_gen, proto_sed
+                            )
+                            tasks_list.append(axis_task_ref)
+                            data_refs.append(axis_data_ref)
+                        proto_sed["Actions"].append(
+                            Surface(
+                                name=f"{surface.getName()}",
+                                identifier=f"{surface.getId()}",
+                                type="sed::surface",
+                                x_axis=data_refs[0],
+                                y_axis=data_refs[1],
+                                z_axis=data_refs[2],
+                            )
                         )
+                if len(data_report_ids) > 0:
+                    proto_sed["Actions"].append(
+                        HDF5Report(name=f"", identifier=f"", type=f"", dataHierarchy={})
                     )
 
     @classmethod
@@ -399,9 +413,9 @@ class SedMLCore:
             model_target: str = var.getModelReference()
             task_ref = "#" + var.getTaskReference()
             if model_target is None:
-                data_set_ref = f"#{var.getTaskReference()}.$model.{var.getId()}"
+                data_set_ref = f"{task_ref}.$model.{var.getId()}"
             else:
-                data_set_ref = f"#{var.getTaskReference()}.{model_target}.{var.getId()}"
+                data_set_ref = f"{task_ref}.{model_target}.{var.getId()}"
         else:
             # It's a formulaic data generator
             task_ref = "Null"  # This is to satisfy the linter worrying that there isn't even a single variable
@@ -410,13 +424,11 @@ class SedMLCore:
                 model_target: str = var.getModelReference()
                 task_ref = "#" + var.getTaskReference()
                 if model_target is None:
-                    math_formula.replace(
-                        var.getId(), f"#{var.getTaskReference()}.$model.{var.getId()}"
-                    )
+                    math_formula.replace(var.getId(), f"{task_ref}.$model.{var.getId()}")
                 else:
                     math_formula.replace(
                         var.getId(),
-                        f"#{var.getTaskReference()}.{model_target}.{var.getId()}",
+                        f"{task_ref}.{model_target}.{var.getId()}",
                     )
             for param in [data_gen.getParameter(i) for i in data_gen.getNumParameters()]:
                 param: SedMLParameter
