@@ -291,29 +291,20 @@ class SedMLCore:
                             model.bindings[var.getId()] = target
 
     @classmethod
-    def _create_experiment_threads(
-        cls, sedml_doc: SedMLDocument, proto_sed: dict[str, Union[Metadata, list, dict[str, list]]]
-    ) -> list[ThreadExecutionType]:
-        """
-        We  separate each output into "linked lists" of actions for reduction and conversion ease
-        """
-        exp_threads: list[cls.ThreadExecutionType] = []
-        # go bottom up
-        for output in sedml_doc.output_list:
-            current_thread = [(output.getId(), output)]
-            if isinstance(output, SedMLReport):
-                for data_set in [output.getDataSet(i) for i in range(output.getNumDataSets())]:
-                    data_set: SedMLDataSet
-                    data_gen = sedml_doc.data_gen_dict[data_set.getDataReference()]
-                    # model_ref = data_gen.
-
-        return exp_threads
-
-    @classmethod
     def _convert_to_sed_document(
         cls, sedml_doc: SedMLDocument, proto_sed: dict[str, Union[Metadata, list, dict[str, list]]]
     ) -> SedDocument:
-        data_report_ids = []
+        # finish building up the proto sed document
+        cls._convert_outputs(sedml_doc, proto_sed)
+
+        # Crete the SedDocument
+        return SedDocument(**proto_sed)
+
+    @classmethod
+    def _convert_outputs(
+        cls, sedml_doc: SedMLDocument, proto_sed: dict[str, Union[Metadata, list, dict[str, list]]]
+    ):
+        data_report_ids: dict[str, list[str]] = {}
         for output in sedml_doc.output_list:
             tasks_list: list[str] = []
             if isinstance(output, SedMLReport):
@@ -323,13 +314,19 @@ class SedMLCore:
                     data_gen: SedMLDataGenerator = sedml_doc.data_gen_dict[
                         data_set.getDataReference()
                     ]
-                    ds_task_list, ds_data_sets = cls.__parse_data_gen(data_gen, proto_sed)
+                    ds_task_list, ds_data_set = cls.__parse_data_gen(data_gen, proto_sed)
                     tasks_list.extend(ds_task_list)
-                    data_sets.extend(ds_data_sets)
+                    data_sets.extend(ds_data_set)
                 proto_sed["Actions"].append(
-                    DataReport(name=f"", identifier=f"", type=f"", metaData={}, dataSets=data_sets)
+                    DataReport(
+                        name=f"{output.getName()}",
+                        identifier=f"{output.getId()}",
+                        type=f"sed::dataReport",
+                        metaData={},  # temporarily empty
+                        dataSets=data_sets,
+                    )
                 )
-                data_report_ids.append(output.getId())
+                data_report_ids[output.getId()] = "#" + output.getId()
 
             if isinstance(output, SedMLPlot):
                 if isinstance(output, SedMLPlot2D):
@@ -353,6 +350,13 @@ class SedMLCore:
                                 y_axis=data_refs[1],
                             )
                         )
+                    proto_sed["Actions"].append(
+                        Plot2D(
+                            name=f"{output.getName()}",
+                            identifier=f"{output.getId()}",
+                            type="plot::2DPlot",
+                        )
+                    )
                 if isinstance(output, SedMLPlot3D):
                     data_refs: list[str] = []
                     for surface in [output.getSurface(i) for i in range(output.getNumSurfaces())]:
@@ -379,10 +383,24 @@ class SedMLCore:
                                 z_axis=data_refs[2],
                             )
                         )
-                if len(data_report_ids) > 0:
                     proto_sed["Actions"].append(
-                        HDF5Report(name=f"", identifier=f"", type=f"", dataHierarchy={})
+                        Plot3D(
+                            name=f"{output.getName()}",
+                            identifier=f"{output.getId()}",
+                            type="plot::3DPlot",
+                        )
                     )
+
+        if len(data_report_ids) > 0:
+            data_hierarchy = {"*": repr(data_report_ids)}
+            proto_sed["Actions"].append(
+                HDF5Report(
+                    name=f"HDF5 Output",
+                    identifier=f"hdf5Report",
+                    type=f"hdf5::HDF5Report",
+                    dataHierarchy=data_hierarchy,
+                )
+            )
 
     @classmethod
     def __get_model_references(cls, task: SedMLAbstractTask) -> list[str]:

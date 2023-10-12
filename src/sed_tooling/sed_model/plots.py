@@ -62,7 +62,7 @@ class Surface(Action):
         return v
 
 
-class Plot2D:
+class Plot2D(Action):
     type: str
     curves: List[Union[str, Dict]]
 
@@ -84,7 +84,7 @@ class Plot2D:
                 assert Curve(**curve)
 
 
-class Plot3D:
+class Plot3D(Action):
     type: str
     surfaces: List[Union[str, Dict]]
 

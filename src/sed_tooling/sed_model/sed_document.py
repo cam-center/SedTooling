@@ -10,6 +10,9 @@ from sed_tooling.sed_model.output import Output
 from sed_tooling.sed_model.metadata import Metadata
 
 
+# TODO: CONVERT BELOW TO HAVE LEVELS / VERSIONS BE STRATEGIES (i.e. the "strategy pattern") rather than inheritances.
+
+
 class SedDocument(BaseModel):
     """
     This class serves as a stepping stone to access the metadata and parse for the correct version
